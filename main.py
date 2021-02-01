@@ -49,7 +49,7 @@ def create_sequences(seq_dict):
     seq = seq_dict[name]
     seq_dict[name] = Sequence(name, seq) # instantiate Sequence
 
-def parse_protein_diffs(seq_dict, ref_name, ref_protein):
+def calculate_protein_diffs(seq_dict, ref_name, ref_protein):
   for name in seq_dict:
     if name != ref_name:
       # trigger protein diff calculation if sequence is not reference
@@ -80,11 +80,13 @@ if __name__ == "__main__":
   print("reference name: " + ref_name)
 
   # initialize sequences
+  # seq_dict = { "name1": "SEQUENCE", "name2": "SEQUENCE" }
   create_sequences(seq_dict)
+  # seq_dict = { "name1": Sequence(), "name2": Sequence() }
 
   # calculate protein diffs for each sequence against the reference protein
   ref_protein = seq_dict[ref_name].protein
-  parse_protein_diffs(seq_dict, ref_name, ref_protein)
+  calculate_protein_diffs(seq_dict, ref_name, ref_protein)
 
   # parse epitopes
   # calculate epitope protein diffs for each sequence against reference protein
@@ -96,4 +98,4 @@ if __name__ == "__main__":
       out.write(str(seq) + '\n')
       #print(str(seq))
 
-  #TODO: output separate file with epitope information; different format?
+  # TODO: output separate file with epitope information; different format?

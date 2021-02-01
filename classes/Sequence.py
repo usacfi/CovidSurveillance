@@ -69,6 +69,7 @@ class Sequence:
     return protein
 
   def add_epitope(self, start, end, ref_protein):
+    # intantiate a new Epitope, also calculated epitope protein difference
     new_epi = Epitope(self, start, end, ref_protein)
     self.epitopes.append(new_epi)
 
