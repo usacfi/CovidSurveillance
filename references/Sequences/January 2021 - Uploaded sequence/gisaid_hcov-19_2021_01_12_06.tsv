@@ -1,0 +1,21 @@
+Virus name	Accession ID	Collection date	Location	Host	Additional location information	Gender	Patient age	Patient status	Passage	Specimen	Additional host information	Lineage	Clade
+hCoV-19/USA/CA-QDX-2762/2020	EPI_ISL_803095	2020-12-26	North America / USA / California	Human		Female	50	unknown	Original			B.1.1	GR
+hCoV-19/USA/CA-QDX-2777/2020	EPI_ISL_803096	2020-12-26	North America / USA / California	Human		Female	32	unknown	Original			B.1.110	GH
+hCoV-19/USA/CA-QDX-2794/2020	EPI_ISL_803097	2020-12-26	North America / USA / California	Human		Female	64	unknown	Original			B.1.2	GH
+hCoV-19/Ecuador/USFQ-581/2021	EPI_ISL_803098	2021-01-06	South America / Ecuador / Los Rios / Valencia	Human		Female	58	unknown	Original			B.1.1.7	GR
+hCoV-19/USA/IL-CDC-2-3693699/2020	EPI_ISL_803099	2020-11-09	North America / USA / Illinois	Human		unknown	unknown	unknown	Original	Nasal secretions		B.1.2	GH
+hCoV-19/USA/TN-CDC-2-3693580/2020	EPI_ISL_803100	2020-11-25	North America / USA / Tennessee	Human		unknown	unknown	unknown	Original			B.1.2	GH
+hCoV-19/USA/OK-CDC-2-3693490/2020	EPI_ISL_803101	2020-11-18	North America / USA / Oklahoma	Human		unknown	unknown	unknown	Original			B.1.234	G
+hCoV-19/USA/MT-CDC-2-3693668/2020	EPI_ISL_803102	2020-10-30	North America / USA / Montana	Human		unknown	unknown	unknown	Original	Nasal secretions		B.1	G
+hCoV-19/USA/NV-CDC-2-3693472/2020	EPI_ISL_803103	2020-11-09	North America / USA / Nevada	Human		unknown	unknown	unknown	Original			B.1.230	G
+hCoV-19/USA/OR-CDC-2-3693559/2020	EPI_ISL_803104	2020-11-18	North America / USA / Oregon	Human		unknown	unknown	unknown	Original			B.1.243	GH
+hCoV-19/USA/DE-CDC-2-3693752/2020	EPI_ISL_803105	2020-10-20	North America / USA / Delaware	Human		unknown	unknown	unknown	Original	Nasal secretions		B.1.189	G
+hCoV-19/USA/DE-CDC-2-3693674/2020	EPI_ISL_803106	2020-10-21	North America / USA / Delaware	Human		unknown	unknown	unknown	Original	Nasal secretions		B.1.189	G
+hCoV-19/cat/Iran/MeshkinShahr/2020	EPI_ISL_803107	2020-07-22	Asia / Iran	Felis catus		unknown	unknown	unknown	Original	Respiratory swab		None	O
+hCoV-19/Australia/NSW1424/2021	EPI_ISL_803108	2021-01-10	Oceania / Australia / New South Wales / Sydney	Human		unknown	unknown	unknown	Original			B.1.1	GR
+hCoV-19/Australia/NSW1425/2021	EPI_ISL_803109	2021-01-11	Oceania / Australia / New South Wales / Sydney	Human		unknown	unknown	unknown	Original			B.1.1	GR
+hCoV-19/Australia/NSW1426/2021	EPI_ISL_803110	2021-01-08	Oceania / Australia / New South Wales / Sydney	Human		unknown	unknown	unknown	Original			B.1	GH
+hCoV-19/Australia/NSW1427/2021	EPI_ISL_803111	2021-01-08	Oceania / Australia / New South Wales / Sydney	Human		unknown	unknown	unknown	Original			B.1.1.1	GR
+hCoV-19/Australia/NSW1428/2021	EPI_ISL_803112	2021-01-08	Oceania / Australia / New South Wales / Sydney	Human		unknown	unknown	unknown	Original			B.1.2	GH
+hCoV-19/Australia/NSW1429/2021	EPI_ISL_803113	2021-01-08	Oceania / Australia / New South Wales / Sydney	Human		unknown	unknown	unknown	Original			B.1.1.7	GR
+hCoV-19/Australia/NSW1430/2021	EPI_ISL_803114	2021-01-08	Oceania / Australia / New South Wales / Sydney	Human		unknown	unknown	unknown	Original			B.1.2	GH

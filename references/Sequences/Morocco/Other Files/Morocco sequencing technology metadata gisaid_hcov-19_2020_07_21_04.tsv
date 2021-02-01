@@ -1,0 +1,49 @@
+Virus name	Accession ID	Collection date	Location	Host	Passage	Specimen	Additional host information	Sequencing technology	Assembly method	Comment	Comment type	Lineage	Clade
+hCoV-19/Morocco/OUA677-19/2020	EPI_ISL_451400	2020-04-23	Africa / Morocco / Ouarzazate	Human	Original	 Naso-pharyngeal swab		Illumina MiSeq	CLC Genomics Workbench 12, GS Reference Mapper v 2.9			B.1	G
+hCoV-19/Morocco/15N/2020	EPI_ISL_458150	2020-05-15	Africa / Morocco / Casablanca	Human	Original	Naso-pharyngeal swab		Ion Torrent	Reference based			B.1.1	GR
+hCoV-19/Morocco/OUA677_19/2020	EPI_ISL_458287	2020-04-23	Africa / Morocco / Rabat	Human	Original	Naso-pharyngeal swab		Illumina	GS Reference Mapper v. 2.9; CLC Genomics			B.1	G
+hCoV-19/Morocco/6887/2020	EPI_ISL_459965	2020-03-03	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite			B.1.1	GR
+hCoV-19/Morocco/6888/2020	EPI_ISL_459966	2020-03-15	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite			B.1.1	GR
+hCoV-19/Morocco/6889/2020	EPI_ISL_459967	2020-03-15	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite			B.1	G
+hCoV-19/Morocco/6890/2020	EPI_ISL_459968	2020-03-17	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite			B.1	G
+hCoV-19/Morocco/6891/2020	EPI_ISL_459969	2020-03-20	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite	[W] Stretches of NNNs (1.20% of overall sequence).	warn	B.1	GH
+hCoV-19/Morocco/6892/2020	EPI_ISL_459970	2020-03-17	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite	[W] Stretches of NNNs (1.24% of overall sequence).	warn	B.1	G
+hCoV-19/Morocco/6893/2020	EPI_ISL_459971	2020-03-18	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite	[W] Stretches of NNNs (1.39% of overall sequence).	warn	B.1	G
+hCoV-19/Morocco/6894/2020	EPI_ISL_459972	2020-03-20	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite			B.1	G
+hCoV-19/Morocco/6895/2020	EPI_ISL_459973	2020-03-20	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite			B.1.1	GR
+hCoV-19/Morocco/6896/2020	EPI_ISL_459974	2020-03-20	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite			B.1	G
+hCoV-19/Morocco/6897/2020	EPI_ISL_459975	2020-03-21	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite	[I] Gap of 1 nucleotides when compared to the reference sequence.	info	B.1.5	G
+hCoV-19/Morocco/6898/2020	EPI_ISL_459976	2020-03-16	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite			B.1	GH
+hCoV-19/Morocco/6899/2020	EPI_ISL_459977	2020-04-21	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite			B.1.1	GR
+hCoV-19/Morocco/6900/2020	EPI_ISL_459978	2020-04-20	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite			B.1.1	GR
+hCoV-19/Morocco/6901/2020	EPI_ISL_459979	2020-04-19	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite			B.1	GH
+hCoV-19/Morocco/6902/2020	EPI_ISL_459980	2020-04-19	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite			B.1.1	GR
+hCoV-19/Morocco/6903/2020	EPI_ISL_459981	2020-04-19	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite			B.1	G
+hCoV-19/Morocco/6904/2020	EPI_ISL_459982	2020-04-18	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite			B.1	GH
+hCoV-19/Morocco/6905/2020	EPI_ISL_459983	2020-04-21	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite			B.1.1	GR
+hCoV-19/Morocco/6906/2020	EPI_ISL_459984	2020-04-06	Africa / Morocco	Human	Original			Illumina NextSeq 500	CLC Genomics Suite			B.1.1	GR
+hCoV-19/Morocco/RA85/2020	EPI_ISL_467299	2020-05-21	Africa / Morocco	Human	Original	Naso-pharyngeal swab		Miseq	CLC Genomics Workbench 20, GS Mapper 9.2	[W] Insertion of 1 nucleotide(s) found at refpos 20198 (FRAMESHIFT). Insertion of 2 nucleotide(s) found at refpos 26370 (FRAMESHIFT). Insertion of 1 nucleotide(s) found at refpos 26371 (FRAMESHIFT). Insertion of 1 nucleotide(s) found at refpos 28690 (FRAMESHIFT). Insertion of 1 nucleotide(s) found at refpos 28693 (FRAMESHIFT). Insertion of 6 nucleotides when compared to the reference sequence. Submitter info: insertions are confirmed. %UniqueMutations 0.08%.	warn	B.1	G
+hCoV-19/Morocco/RMPS-01/2020 	EPI_ISL_469017	2020-04-13	Africa / Morocco	Human	Original	Nasopharyngeal swab		Nanopore MinION	Reference based			B.1	GH
+hCoV-19/Morocco/RMPS-02/2020 	EPI_ISL_469049	2020-03-30	Africa / Morocco	Human	Original	Naso-pharyngeal swab		Nanopore MinION.	Reference based			B.1	GH
+hCoV-19/Morocco/RMPS-03/2020 	EPI_ISL_469051	2020-04-03	Africa / Morocco	Human	Original	Naso-pharyngeal swab		Nanopore MinION	Reference based			B.1	G
+hCoV-19/Morocco/RMPS-04/2020 	EPI_ISL_469052	2020-03-30	Africa / Morocco	Human	Original	Naso-pharyngeal swab		Nanopore MinION,	Reference based			B.1	GH
+hCoV-19/Morocco/RMPS-05/2020 	EPI_ISL_469053	2020-03-30	Africa / Morocco	Human	Original	Naso-pharyngeal swab		Nanopore MinION	Reference based			B.1	GH
+hCoV-19/Morocco/RMPS-06/2020 	EPI_ISL_469054	2020-04-01	Africa / Morocco	Human	Original	Naso-pharyngeal swab		Nanopore MinION	Reference based			B.1	GH
+hCoV-19/Morocco/HMIMV-Rabat102-03/2020	EPI_ISL_471456	2020-03-31	Africa / Morocco / Rabat	Human	Original	Oro-pharyngeal swab		Ion Torrent				B.1	G
+hCoV-19/Morocco/HMIMV-Rabat1025-04/2020	EPI_ISL_471457	2020-04-13	Africa / Morocco / Rabat	Human	Original	Oro-pharyngeal swab		Ion Torrent				B.1.5	G
+hCoV-19/Morocco/HMIMV-Rabat1429-04/2020	EPI_ISL_471458	2020-04-19	Africa / Morocco / Rabat	Human	Original	Oro-pharyngeal swab		Ion Torrent				B.1.5	G
+hCoV-19/Morocco/HMIMV-Rabat1435-04/2020	EPI_ISL_471459	2020-04-19	Africa / Morocco / Rabat	Human	Original	Oro-pharyngeal swab		Ion Torrent				B.1.5	G
+hCoV-19/Morocco/HMIMV-Rabat1462-04/2020	EPI_ISL_471460	2020-04-19	Africa / Morocco / Rabat	Human	Original	Oro-pharyngeal swab		Ion Torrent				B.1.5	G
+hCoV-19/Morocco/moh100/2020	EPI_ISL_476024	2020-05-05	Africa / Morocco	Human	Original	Naso-pharyngeal swab		Miseq	CLC Genomics Workbench 20, GS Reference Mapper 2.9	[W] Insertion of 1 nucleotide(s) found at refpos 11527 (FRAMESHIFT).  Insertion of 1 nucleotide(s) found at refpos 11554 (FRAMESHIFT).  Insertion of 1 nucleotide(s) found at refpos 11557 (FRAMESHIFT).  Insertion of 2 nucleotide(s) found at refpos 23674 (FRAMESHIFT).  Insertion of 1 nucleotide(s) found at refpos 23680 (FRAMESHIFT).  Insertion of 6 nucleotides when compared to the reference sequence. %UniqueMutations 0.15%.	warn	B.1.1	GR
+hCoV-19/Morocco/CA24/2020	EPI_ISL_476025	2020-05-02	Africa / Morocco	Human	Original	Naso-pharyngeal swab		Miseq	CLC Genomics Workbench 12,GS Reference Mapper 2.9	[W] Gap of 1 nucleotide(s) found at refpos 28254 (FRAMESHIFT).  Insertion of 3 nucleotides when compared to the reference sequence.  Gap of 1 nucleotides when compared to the reference sequence.  %UniqueMutations 0.06%.	warn	B.1.1	GR
+hCoV-19/Morocco/AZ183/2020	EPI_ISL_476026	2020-05-11	Africa / Morocco	Human	Original			Miseq	CLC Genomics Workbench 20, GS Reference Mapper 2.9	[W] Insertion of 1 nucleotide(s) found at refpos 11527 (FRAMESHIFT).  Insertion of 1 nucleotides when compared to the reference sequence. %UniqueMutations 0.16%.	warn	B.1.1	GR
+hCoV-19/Morocco/refstage1/2020	EPI_ISL_476559	2020-02-27	Africa / Morocco	Human	Original			NGS				B.1	G
+hCoV-19/Morocco/RMPS-07/2020 	EPI_ISL_482732	2020-04-04	Africa / Morocco	Human	Original	Naso-pharyngeal swab		Nanopore MinION	Reference based	[X] Long stretches of NNNs (24.13% of overall sequence).	alert	B.1	GH
+hCoV-19/Morocco/RMPS-08/2020	EPI_ISL_482733	2020-04-01	Africa / Morocco	Human	Original	Naso-pharyngeal swab		Nanopore MinION	Reference based	[X] Long stretches of NNNs (13.07% of overall sequence).	alert	B.1	GH
+hCoV-19/Morocco/RMPS-09/2020	EPI_ISL_482734	2020-04-01	Africa / Morocco	Human	Original	Naso-pharyngeal swab		Nanopore MinION	Reference based	[X] Long stretches of NNNs (18.53% of overall sequence).	alert	B.1	GH
+hCoV-19/Morocco/RMPS-10/2020	EPI_ISL_482735	2020-04-22	Africa / Morocco	Human	Original	Naso-pharyngeal swab		Nanopore MinION	Reference based	[X] Long stretches of NNNs (10.05% of overall sequence).	alert	B.1	GH
+hCoV-19/Morocco/RMPS-11/2020	EPI_ISL_482736	2020-04-24	Africa / Morocco	Human	Original	Naso-pharyngeal swab		Nanopore MinION	Reference based	[X] Long stretches of NNNs (19.05% of overall sequence).	alert	B.1	GH
+hCoV-19/Morocco/RMPS-12/2020	EPI_ISL_482737	2020-05-08	Africa / Morocco	Human	Original	Naso-pharyngeal swab		Nanopore MinION	Reference based	[W] Stretches of NNNs (2.14% of overall sequence).	warn	B.1.1	GR
+hCoV-19/Morocco/RMPS-13/2020 	EPI_ISL_482738	2020-04-10	Africa / Morocco	Human	Original	Naso-pharyngeal swab		Nanopore MinION	Reference based	[W] Stretches of NNNs (2.13% of overall sequence).	warn	B.1	GH
+hCoV-19/Morocco/RMPS-14/2020	EPI_ISL_482739	2020-04-22	Africa / Morocco	Human	Original	Naso-pharyngeal swab		Nanopore MinION	Reference based	[W] Stretches of NNNs (4.04% of overall sequence).	warn	B.1	GH
+hCoV-19/Morocco/RMPS-15/2020	EPI_ISL_482740	2020-05-26	Africa / Morocco	Human	Original	Naso-pharyngeal swab		Nanopore MinION	Reference based	[X] Long stretches of NNNs (8.78% of overall sequence).	alert	B.1	G

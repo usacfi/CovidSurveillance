@@ -1,0 +1,54 @@
+Virus name	Accession ID	Collection date	Location	Host	Passage	Specimen	Additional host information	Sequencing technology	Assembly method	Comment	Comment type	Lineage	Clade
+hCoV-19/Malaysia/CL5045/2020	EPI_ISL_410487	2020-01-24	Asia / Malaysia	Human	unknown	Nasopharyngeal swab		Sanger		orf1ab polyprotein, RdRp region, (orf1ab) gene, partial cds		None	O
+hCoV-19/Malaysia/CL5047/2020	EPI_ISL_410488	2020-01-24	Asia / Malaysia	Human	unknown	Nasopharyngeal swab		Sanger		orf1ab polyprotein, RdRp region, (orf1ab) gene, partial cds		None	O
+hCoV-19/Malaysia/CL5049/2020	EPI_ISL_410489	2020-01-24	Asia / Malaysia	Human	unknown	Nasopharyngeal swab		Sanger		orf1ab polyprotein, RdRp region, (orf1ab) gene, partial cds		None	O
+hCoV-19/Malaysia/MKAK-CL-2020-5045/2020	EPI_ISL_416829	2020-01-24	Asia / Malaysia / Selangor	Human	Vero E6			Illumina Miseq	MEGAHIT v1.2.9			B	L
+hCoV-19/Malaysia/MKAK-CL-2020-5047/2020	EPI_ISL_416866	2020-01-24	Asia / Malaysia / Selangor	Human	Vero E6			Illumina Miseq	MEGAHIT v1.2.9			B	L
+hCoV-19/Malaysia/MKAK-CL-2020-5049/2020	EPI_ISL_416884	2020-01-24	Asia / Malaysia / Selangor	Human	Vero E6			Illumina Miseq	MEGAHIT v1.2.9	[W] %UniqueMutations 0.09%.	warn	B	L
+hCoV-19/Malaysia/MKAK-CL-2020-5096/2020	EPI_ISL_416885	2020-01-30	Asia / Malaysia / Selangor	Human	Vero E6			Illumina Miseq	MEGAHIT v1.2.9			A	S
+hCoV-19/Malaysia/MKAK-CL-2020-6430/2020	EPI_ISL_416886	2020-02-04	Asia / Malaysia / Selangor	Human	Vero E6			Illumina Miseq	MEGAHIT v1.2.9			A	S
+hCoV-19/Malaysia/MKAK-CL-2020-7554/2020	EPI_ISL_416907	2020-02-06	Asia / Malaysia / Selangor	Human	Vero E6			Illumina Miseq	MEGAHIT v1.2.9			B	L
+hCoV-19/Malaysia/189332/2020	EPI_ISL_417917	2020-03-20	Asia / Malaysia / Kuala Lumpur	Human	Orignal	Nasopharyngeal/throat swab		Illumina iSeq	Geneious Prime 2020.1	Gap of 4 nucleotides when compared to the reference sequence.	info	B.6	O
+hCoV-19/Malaysia/188407/2020	EPI_ISL_417918	2020-03-18	Asia / Malaysia / Kuala Lumpur	Human	Original	Nasopharyngeal/throat swab		Illumina iSeq	Geneious Prime 2020.1	Gap of 2 nucleotides when compared to the reference sequence.	info	B.6	O
+hCoV-19/Malaysia/186197/2020	EPI_ISL_417919	2020-03-14	Asia / Malaysia / Kuala Lumpur	Human	Original	Nasopharyngeal/throat swab		Illumina iSeq, Nanopore	Geneious Prime 2020.1, Medaka (ARTIC pipeline)	Stretches of NNNs (4.23% of overall sequence). Insertion of 1 nucleotides when compared to the reference sequence. Gap of 3 nucleotides when compared to the reference sequence.	warn	B	L
+hCoV-19/Malaysia/190300/2020	EPI_ISL_417920	2020-03-22	Asia / Malaysia / Kuala Lumpur	Human	Original	Nasopharyngeal/throat swab		Illumina iSeq	Geneious Prime 2020.1	%UniqueMutations 0.14%.	warn	B.6	O
+hCoV-19/Malaysia/IMR_WC1177/2020	EPI_ISL_430439	2020-03-05	Asia / Malaysia	Human	Original			Illumina Next Seq 500				B	L
+hCoV-19/Malaysia/IMR_WC1170/2020	EPI_ISL_430440	2020-03-05	Asia / Malaysia	Human	Original			Illumina Next Seq 500				B	L
+hCoV-19/Malaysia/IMR_WC1097/2020	EPI_ISL_430441	2020-02-29	Asia / Malaysia	Human	Vero E6			Illumina Next Seq 500				B	L
+hCoV-19/Malaysia/IMR_WC1098/2020	EPI_ISL_430442	2020-02-29	Asia / Malaysia	Human	Vero E6			Illumina Next Seq 500		Gap of 15 nucleotides when compared to the reference sequence.		B	L
+hCoV-19/Malaysia/IMR_WC085/2020	EPI_ISL_430443	2020-01-28	Asia / Malaysia	Human	Vero E6			Illumina Next Seq 500				B	L
+hCoV-19/Malaysia/IMR_WC627/2020	EPI_ISL_430444	2020-02-12	Asia / Malaysia	Human	Vero E6			Illumina Next Seq 500				B	L
+hCoV-19/Malaysia/IIUM316/2020	EPI_ISL_455312	2020-04-09	Asia / Malaysia / Pahang	Human	Original	Combined nasopharyngeal and oropharyngeal swab	Healthcare worker	Nanopore MinION	Geneious Prime 2020.1, Medeka (ARTIC pipeline)			B.6	O
+hCoV-19/Malaysia/IIUM91/2020	EPI_ISL_455313	2020-04-02	Asia / Malaysia / Pahang	Human	Original	Combined nasopharyngeal and oropharyngeal swab	Unknown	Illumina iSeq	Geneious Prime 2020.1, Medaka (ARTIC pipeline)			B.1.36	GH
+hCoV-19/Malaysia/IMR_WC119/2020	EPI_ISL_455790	2020-01-30	Asia / Malaysia / Selangor	Human	Vero E6	NPS+TS		Illumina Miseq	MEGAHIT v1.2.9			A	S
+hCoV-19/Malaysia/IMR_WC413/2020	EPI_ISL_455791	2020-02-08	Asia / Malaysia / Selangor	Human	Vero E6	OPS		Illumina Miseq	MEGAHIT v1.2.9			B	L
+hCoV-19/Malaysia/IMR_WC458/2020	EPI_ISL_455792	2020-02-09	Asia / Malaysia / Selangor	Human	Vero E6	OPS		Illumina Miseq	MEGAHIT v1.2.9			B	L
+hCoV-19/Malaysia/IMR_WC1114/2020	EPI_ISL_455793	2020-02-29	Asia / Malaysia / Selangor	Human	Vero E6			Illumina Miseq	MEGAHIT v1.2.9			B	L
+hCoV-19/Malaysia/IMR_WC2423/2020	EPI_ISL_459953	2020-03-16	Asia / Malaysia / Kuala Lumpur	Human	Vero E6			Illumina NextSeq 500				B.6	O
+hCoV-19/Malaysia/IMR_WC2453/2020	EPI_ISL_459954	2020-03-16	Asia / Malaysia / Kuala Lumpur	Human	Vero E6			Illumina NextSeq 500				B.6	O
+hCoV-19/Malaysia/IMR_WC2665/2020	EPI_ISL_459955	2020-03-18	Asia / Malaysia	Human	Vero E6			Illumina NextSeq 500				B.6	O
+hCoV-19/Malaysia/IMR_WC9127/2020	EPI_ISL_459956	2020-03-30	Asia / Malaysia	Human	Original			Illumina NextSeq 500				B.6	O
+hCoV-19/Malaysia/IMR_WC10180/2020	EPI_ISL_459957	2020-04-01	Asia / Malaysia	Human	Original			Illumina NextSeq 500				B.6	O
+hCoV-19/Malaysia/IMR-WC9205/2020	EPI_ISL_489992	2020-03-04	Asia / Malaysia / Selangor	Human	Vero E6			Illumina NextSeq 500				B.6	O
+hCoV-19/Malaysia/IMR-WC9174/2020	EPI_ISL_489993	2020-03-04	Asia / Malaysia / Selangor	Human	Vero E6			Illumina NextSeq 500		Insertion of 279 nucleotides when compared to the reference sequence.	warn	B.6	O
+hCoV-19/Malaysia/IMR-WC9185/2020	EPI_ISL_489994	2020-03-30	Asia / Malaysia	Human	Vero E6			Illumina NextSeq 500				B.6	O
+hCoV-19/Malaysia/IMR_WC10195/2020	EPI_ISL_490014	2020-04-10	Asia / Malaysia / Selangor	Human	Original			Illumina NextSeq 500		Insertion of 15 nucleotides when compared to the reference sequence.	warn	B.6	O
+hCoV-19/Malaysia/IMR_WC12897/2020	EPI_ISL_490015	2020-04-10	Asia / Malaysia / Selangor	Human	Vero E6			Illumina NextSeq 500		Insertion of 2 nucleotide(s) found at refpos 0 (FRAMESHIFT). Insertion of 22 nucleotides when compared to the reference sequence.	warn	B.1	G
+hCoV-19/Malaysia/IMR_WC12286/2020	EPI_ISL_490016	2020-04-10	Asia / Malaysia	Human	Vero E6			Illumina NextSeq 500				B.6	O
+hCoV-19/Malaysia/IMR_WC13946/2020	EPI_ISL_490047	2020-04-10	Asia / Malaysia	Human	Vero E6			Illumina NextSeq 500				B.6	O
+hCoV-19/Malaysia/IMR_WC14227/2020	EPI_ISL_490048	2020-04-11	Asia / Malaysia	Human	Original			Illumina NextSeq 500				B	L
+hCoV-19/Malaysia/IMR_WC55122/2020	EPI_ISL_490089	2020-05-10	Asia / Malaysia / Selangor	Human	Original			Illumina NextSeq 500		Gap of 9 nucleotides when compared to the reference sequence. %UniqueMutations 0.06%.	warn	B.1.1.1	GR
+hCoV-19/Malaysia/IMR_WC80031/2020	EPI_ISL_490090	2020-05-23	Asia / Malaysia / Selangor	Human	Original			Illumina NextSeq 500				B.6	O
+hCoV-19/Malaysia/IMR_WC80036/2020	EPI_ISL_490091	2020-05-23	Asia / Malaysia / Selangor	Human	Original			Illumina NextSeq 500		Insertion of 3 nucleotides when compared to the reference sequence.	info	B.6	O
+hCoV-19/Malaysia/IMR_WC80066/2020	EPI_ISL_490092	2020-05-23	Asia / Malaysia	Human	Original			Illumina NextSeq 500				B.6	O
+hCoV-19/Malaysia/IMR_WC80107/2020	EPI_ISL_490093	2020-05-23	Asia / Malaysia	Human	Original			Illumina NextSeq 500		Gap of 1 nucleotide(s) found at refpos 11083 (FRAMESHIFT). Gap of 1 nucleotides when compared to the reference sequence. %UniqueMutations 0.07%.	warn	B.6	O
+hCoV-19/Malaysia/IMR_WC80109/2020	EPI_ISL_490094	2020-05-23	Asia / Malaysia	Human	Original			Illumina NextSeq 500				B.6	O
+hCoV-19/Malaysia/IMR_WC80558/2020	EPI_ISL_490095	2020-05-23	Asia / Malaysia	Human	Original			Illumina NextSeq 500				B.6	O
+hCoV-19/Malaysia/IMR_WC81523/2020	EPI_ISL_490096	2020-05-23	Asia / Malaysia	Human	Original			Illumina NextSeq 500				B.6	O
+hCoV-19/Malaysia/IMR_WC81528/2020	EPI_ISL_490097	2020-05-23	Asia / Malaysia	Human	Original			Illumina NextSeq 500		 Insertion of 11 nucleotide(s) found at refpos 0 (FRAMESHIFT). Insertion of 34 nucleotides when compared to the reference sequence.	warn	B.6	O
+hCoV-19/Malaysia/IMR_WC81849/2020	EPI_ISL_490098	2020-05-23	Asia / Malaysia	Human	Original			Illumina NextSeq 500				B.6	O
+hCoV-19/Malaysia/IMR_WC99023/2020	EPI_ISL_490099	2020-05-23	Asia / Malaysia	Human	Original			Illumina NextSeq 500				B.6	O
+hCoV-19/Malaysia/IMR_WC99045/2020	EPI_ISL_490100	2020-05-23	Asia / Malaysia	Human	Original			Illumina NextSeq 500				B.6	O
+hCoV-19/Malaysia/IMR_WC90685/2020	EPI_ISL_490101	2020-05-29	Asia / Malaysia	Human	Original			Illumina NextSeq 500				B.1.1.1	GR
+hCoV-19/Malaysia/IMR_WC94436/2020	EPI_ISL_490102	2020-05-29	Asia / Malaysia	Human	Original			Illumina NextSeq 500		 Gap of 18 nucleotides when compared to the reference sequence. %UniqueMutations 0.07%.	warn	B.1.1	G
+hCoV-19/Malaysia/IMR_WC94764/2020	EPI_ISL_490103	2020-05-29	Asia / Malaysia	Human	Original			Illumina NextSeq 500				B.1	GH
