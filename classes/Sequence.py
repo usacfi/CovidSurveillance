@@ -54,6 +54,9 @@ class Sequence:
         'TAC': 'Y', 'TAT': 'Y', 'TAA': '_', 'TAG': '_',
         'TGC': 'C', 'TGT': 'C', 'TGA': '_', 'TGG': 'W',
         '---': '-',
+        # wobble codons - based on codon chart and amino acid codes
+        'TCN': 'S', 'CTN': 'L', 'CCN': 'P', 'CGN': 'R',
+        'ACN': 'T', 'GTN': 'V', 'GCN': 'A', 'GGN': 'G',
     }
 
     protein = ''
