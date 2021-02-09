@@ -16,7 +16,7 @@ parser.add_argument('-eps', '--epitope_regions', dest='eps', help='text file tha
 args = parser.parse_args()
 
 def parse_alignment(fasta_file):
-  ref_name = ''
+  ref_name = args.ref
   seq_dict = dict()
 
   with open(fasta_file) as data:
