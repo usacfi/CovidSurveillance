@@ -1,5 +1,6 @@
 import argparse
 from classes.Sequence import Sequence
+import numpy as np
 
 parser = argparse.ArgumentParser(description="parses SNPs from alignments")
 
@@ -27,20 +28,18 @@ def parse_alignment(fasta_file):
       line = line.rstrip() # remove trailing whitespaces
 
       if line.startswith('>'): # name
-        if ref_name == '':
+        if ref_name == None: # if user did not specify -ref input
           ref_name = line[1:] # assumes first name found is the reference
-
-        if seq != '':
-          # will only go here if loop reaches next sequence
-          # store built sequence to dictionary
-          seq_dict[name] = seq
-
+          
         name = line[1:]
         seq = ''
-
+        
       else: # sequence substring
         line = ''.join(line.split())
         seq += line.upper()
+        # this is where the dictionary is defined
+        seq_dict[name] = seq
+
   
   return (ref_name, seq_dict)
 
@@ -69,6 +68,7 @@ def parse_epitopes(epitope_file, seq_dict, ref_protein):
         # calculate epitope protein diff against reference protein
         seq.add_epitope(start, end, ref_protein)
 
+
 #######################################################################
 
 if __name__ == "__main__":
@@ -78,6 +78,7 @@ if __name__ == "__main__":
   (ref_name, seq_dict) = parse_alignment(args.aln)
 
   print("reference name: " + ref_name)
+
 
   # initialize sequences
   # seq_dict = { "name1": "SEQUENCE", "name2": "SEQUENCE" }
