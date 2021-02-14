@@ -1,11 +1,12 @@
 from classes.Epitope import Epitope
 
 class Sequence:
-  def __init__(self, name, sequence):
+  def __init__(self, name, sequence, start_loc, stop_loc):
     self.name = name
     self.sequence = sequence
-    self.sequence_no_gaps = self.remove_gaps(sequence)
-    self.protein = self.translate(sequence)
+    self.trimmed_seq = sequence[start_loc:stop_loc]
+    self.sequence_no_gaps = self.remove_gaps(self.trimmed_seq)
+    self.protein = self.translate(self.trimmed_seq)
     self.protein_diffs = []
     self.epitopes = []
 
@@ -72,7 +73,7 @@ class Sequence:
     return protein
 
   def add_epitope(self, start, end, ref_protein):
-    # intantiate a new Epitope, also calculated epitope protein difference
+    # instantiate a new Epitope, also calculated epitope protein difference
     new_epi = Epitope(self, start, end, ref_protein)
     self.epitopes.append(new_epi)
 
@@ -86,3 +87,5 @@ class Sequence:
       if ref_protein[i] != self.protein[i]:
         diff = ref_protein[i] + str(count) + self.protein[i]
         self.protein_diffs.append(diff)
+        
+    

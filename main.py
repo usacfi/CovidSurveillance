@@ -43,10 +43,10 @@ def parse_alignment(fasta_file):
   
   return (ref_name, seq_dict)
 
-def create_sequences(seq_dict):
+def create_sequences(seq_dict, start_loc, stop_loc):
   for name in seq_dict:
     seq = seq_dict[name]
-    seq_dict[name] = Sequence(name, seq) # instantiate Sequence
+    seq_dict[name] = Sequence(name, seq, start_loc, stop_loc) # instantiate Sequence
 
 def calculate_protein_diffs(seq_dict, ref_name, ref_protein):
   for name in seq_dict:
@@ -68,20 +68,24 @@ def parse_epitopes(epitope_file, seq_dict, ref_protein):
         # calculate epitope protein diff against reference protein
         seq.add_epitope(start, end, ref_protein)
 
-def search_start_stop(ref_protein):
+def search_start_stop(ref_seq):
   start_loc = None
   stop_loc = None
   
-  for i in range(len(ref_protein)):
-    if ref_protein[i] == 'M' and start_loc == None:
+  for i in range(len(ref_seq)):
+    if ref_seq[i:i+3] == 'ATG' and start_loc == None:
+      # location of the first nucleotide
       start_loc = i
-    elif ref_protein[i] == '-' and start_loc != None and stop_loc == None:
-      stop_loc = i-1
-      return start_loc, stop_loc
-    elif i == len(ref_protein) and (start_loc == None or stop_loc == None):
+    elif ref_seq[i+1] == '-':
+      if start_loc != None and stop_loc == None:
+        if ref_seq[i-3:i] in ['TAG','TGA','TAA']:
+          # location of the last nucleotide
+          stop_loc = i
+          return (start_loc, stop_loc)
+    elif i == len(ref_seq) and (start_loc == None or stop_loc == None):
       # Raise Error Message
-      print("Start and stop codons not found in the reference sequence")
-    
+      print("Start and/or stop codon(s) not found in the reference sequence")
+      
 
 #######################################################################
 
@@ -90,23 +94,20 @@ if __name__ == "__main__":
   # get reference name
   # create sequence dictionary
   (ref_name, seq_dict) = parse_alignment(args.aln)
-
   print("reference name: " + ref_name)
 
+  # search for the locations of the ref seq's start and stop codon
+  ref_seq = seq_dict[ref_name]
+  (start_loc, stop_loc) = search_start_stop(ref_seq)
+  print("start codon at {} \nstop codon at {}".format(start_loc, stop_loc))
 
   # initialize sequences
   # seq_dict = { "name1": "SEQUENCE", "name2": "SEQUENCE" }
-  create_sequences(seq_dict)
+  create_sequences(seq_dict, start_loc, stop_loc)
   # seq_dict = { "name1": Sequence(), "name2": Sequence() }
   
-  # define the reference protein sequence
-  ref_protein = seq_dict[ref_name].protein
-
-  # search for the locations of the ref seq's start and stop codon
-  start_loc, stop_loc = search_start_stop(ref_protein)
-  #print("start codon at {} \nstop codon at {}".format(start_loc, stop_loc))
-
   # calculate protein diffs for each sequence against the reference protein
+  ref_protein = seq_dict[ref_name].protein 
   calculate_protein_diffs(seq_dict, ref_name, ref_protein)
 
   # parse epitopes
