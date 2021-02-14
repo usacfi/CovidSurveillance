@@ -68,6 +68,20 @@ def parse_epitopes(epitope_file, seq_dict, ref_protein):
         # calculate epitope protein diff against reference protein
         seq.add_epitope(start, end, ref_protein)
 
+def search_start_stop(ref_protein):
+  start_loc = None
+  stop_loc = None
+  
+  for i in range(len(ref_protein)):
+    if ref_protein[i] == 'M' and start_loc == None:
+      start_loc = i
+    elif ref_protein[i] == '-' and start_loc != None and stop_loc == None:
+      stop_loc = i-1
+      return start_loc, stop_loc
+    elif i == len(ref_protein) and (start_loc == None or stop_loc == None):
+      # Raise Error Message
+      print("Start and stop codons not found in the reference sequence")
+    
 
 #######################################################################
 
@@ -84,9 +98,15 @@ if __name__ == "__main__":
   # seq_dict = { "name1": "SEQUENCE", "name2": "SEQUENCE" }
   create_sequences(seq_dict)
   # seq_dict = { "name1": Sequence(), "name2": Sequence() }
+  
+  # define the reference protein sequence
+  ref_protein = seq_dict[ref_name].protein
+
+  # search for the locations of the ref seq's start and stop codon
+  start_loc, stop_loc = search_start_stop(ref_protein)
+  #print("start codon at {} \nstop codon at {}".format(start_loc, stop_loc))
 
   # calculate protein diffs for each sequence against the reference protein
-  ref_protein = seq_dict[ref_name].protein
   calculate_protein_diffs(seq_dict, ref_name, ref_protein)
 
   # parse epitopes
