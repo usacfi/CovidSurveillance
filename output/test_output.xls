@@ -1,5 +1,10 @@
-Sample Reference Sequence	MLRS_				
+Reference Sequence 1	MLRS_				
 Sequence 1	MQRS_	L2Q			
 Sequence 2	MLQS_	R3Q			
-Sequence 3	MLQS_	R3Q			
+Sequence 3	MPQS_	L2P,R3Q			
 Sequence 4	MLQS_	R3Q			
+Reference Sequence 2	MKP_				
+Sequence 1	M-PK	K2-			
+Sequence 2	MKP_				
+Sequence 3	MKP_				
+Sequence 4	MKP_				

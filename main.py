@@ -2,6 +2,17 @@ import argparse
 from classes.Sequence import Sequence
 import numpy as np
 
+'''
+Sample Run in Command Prompt/Terminal: 
+python3 main.py -aln input/Test_sequence.fasta -o output/test_output.xls -ref input/Reference_names.txt
+
+-aln is the input fasta file
+-o is the output file name 
+-ref is the input textfile that has the list of reference names in the input fasta file
+
+'''
+
+
 parser = argparse.ArgumentParser(description="parses SNPs from alignments")
 
 parser.add_argument('-aln', '--alignments_fasta', dest='aln', help='input alignment file', required=True)
@@ -16,8 +27,7 @@ parser.add_argument('-eps', '--epitope_regions', dest='eps', help='text file tha
 
 args = parser.parse_args()
 
-def parse_alignment(fasta_file):
-  ref_name = args.ref
+def parse_alignment(fasta_file, ref_name):
   seq_dict = dict()
 
   with open(fasta_file) as data:
@@ -39,18 +49,17 @@ def parse_alignment(fasta_file):
         seq += line.upper()
         # this is where the dictionary is defined
         seq_dict[name] = seq
-
   
-  return (ref_name, seq_dict)
+  return seq_dict
 
 def create_sequences(seq_dict, start_loc, stop_loc):
   for name in seq_dict:
     seq = seq_dict[name]
     seq_dict[name] = Sequence(name, seq, start_loc, stop_loc) # instantiate Sequence
 
-def calculate_protein_diffs(seq_dict, ref_name, ref_protein):
+def calculate_protein_diffs(seq_dict, ref_name, ref_protein, refs):
   for name in seq_dict:
-    if name != ref_name:
+    if name not in refs:
       # trigger protein diff calculation if sequence is not reference
       seq = seq_dict[name]
       seq.calculate_protein_diffs(ref_name, ref_protein)
@@ -72,7 +81,7 @@ def search_start_stop(ref_seq):
   start_loc = None
   stop_loc = None
   
-  for i in range(len(ref_seq)):
+  for i in range(0,len(ref_seq)):
     if ref_seq[i:i+3] == 'ATG' and start_loc == None:
       # location of the first nucleotide
       start_loc = i
@@ -90,34 +99,57 @@ def search_start_stop(ref_seq):
 #######################################################################
 
 if __name__ == "__main__":
-  # read and process file
-  # get reference name
-  # create sequence dictionary
-  (ref_name, seq_dict) = parse_alignment(args.aln)
-  print("reference name: " + ref_name)
-
-  # search for the locations of the ref seq's start and stop codon
-  ref_seq = seq_dict[ref_name]
-  (start_loc, stop_loc) = search_start_stop(ref_seq)
-  print("start codon at {} \nstop codon at {}".format(start_loc, stop_loc))
-
-  # initialize sequences
-  # seq_dict = { "name1": "SEQUENCE", "name2": "SEQUENCE" }
-  create_sequences(seq_dict, start_loc, stop_loc)
-  # seq_dict = { "name1": Sequence(), "name2": Sequence() }
   
-  # calculate protein diffs for each sequence against the reference protein
-  ref_protein = seq_dict[ref_name].protein 
-  calculate_protein_diffs(seq_dict, ref_name, ref_protein)
+  # Empty the output file
+  open(args.out, 'w').close()
+  
+  # Create a list of reference names
+  refs = []
+  with open(args.ref) as ref_names:
+    for line in ref_names:
+      line = line.rstrip() # remove trailing whitespaces
+      line = line.split('\n')
+      #print(line[0])
+      refs.append(line[0])
+  
+  
+  for ref_name in refs:
+    # read and process file
+    # get reference name
+    # create sequence dictionary
+    seq_dict = parse_alignment(args.aln, ref_name)
+    #print("reference name: " + ref_name)
 
-  # parse epitopes
-  # calculate epitope protein diffs for each sequence against reference protein
-  if args.eps is not None:
-    parse_epitopes(args.eps, seq_dict, ref_protein)
+    # search for the locations of the ref seq's start and stop codon
+    ref_seq = seq_dict[ref_name]
+    (start_loc, stop_loc) = search_start_stop(ref_seq)
+    print("start codon at {} \nstop codon at {}".format(start_loc, stop_loc))
 
-  with open(args.out + '.xls', 'w') as out:
-    for seq in seq_dict.values():
-      out.write(str(seq) + '\n')
-      #print(str(seq))
+    # initialize sequences
+    # seq_dict = { "name1": "SEQUENCE", "name2": "SEQUENCE" }
+    create_sequences(seq_dict, start_loc, stop_loc)
+    # seq_dict = { "name1": Sequence(), "name2": Sequence() }
+  
+    # calculate protein diffs for each sequence against the reference protein
+    ref_protein = seq_dict[ref_name].protein 
+    calculate_protein_diffs(seq_dict, ref_name, ref_protein, refs)
+
+    # parse epitopes
+    # calculate epitope protein diffs for each sequence against reference protein
+    if args.eps is not None:
+      parse_epitopes(args.eps, seq_dict, ref_protein)
+
+    # Append results in a single output file
+    with open(args.out, 'a') as out:
+      for seq in seq_dict.values():
+          # Write the reference sequence to the output file
+          if seq.name == ref_name:
+            out.write(str(seq) + '\n')
+            print(str(seq))
+          # Write the input sequences to the output file
+          elif seq.name not in refs:
+            out.write(str(seq) + '\n')
+            print(str(seq))
+          
 
   # TODO: output separate file with epitope information; different format?
