@@ -5,8 +5,9 @@ class Sequence:
     self.name = name
     self.sequence = sequence
     self.trimmed_seq = sequence[start_loc:stop_loc]
-    self.sequence_no_gaps = self.remove_gaps(self.trimmed_seq)
+    self.sequence_no_gaps = self.remove_gaps(self.trimmed_seq) # not needed
     self.protein = self.translate(self.trimmed_seq)
+    self.mutations = []
     self.protein_diffs = []
     self.epitopes = []
 
@@ -23,8 +24,9 @@ class Sequence:
 
     output = [
       self.name, 
-      self.protein, 
-      ','.join(self.protein_diffs), 
+      #self.protein, # As discussed, this this not important as output
+      ''.join(self.mutations), # technically exactly the same with protein_diffs, but with format
+      #','.join(self.protein_diffs), # As discussed, this this not important as output
       ','.join(e_positions), 
       ','.join(e_seqs),
       ','.join(e_diffs)
@@ -77,15 +79,20 @@ class Sequence:
     new_epi = Epitope(self, start, end, ref_protein)
     self.epitopes.append(new_epi)
 
-  def calculate_protein_diffs(self, ref_name, ref_protein):
+  def calculate_protein_diffs(self, ref_name, ref_protein, is_ref):
     count = 0
 
     for i in range(0, len(ref_protein)-1):
       if ref_protein[i] != '-':
         count += 1
       
-      if ref_protein[i] != self.protein[i]:
-        diff = ref_protein[i] + str(count) + self.protein[i]
-        self.protein_diffs.append(diff)
+      # if no difference and not reference protein 
+      if ref_protein[i] == self.protein[i] and not(is_ref) :
+        self.mutations.append('_')
+        
+      # if proteins are different or if is_ref is TRUE
+      else:
+        self.mutations.append(self.protein[i])
+
         
     
