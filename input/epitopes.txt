@@ -1,0 +1,11 @@
+Surface glycoprotein-287-317
+Surface glycoprotein-524-598
+Surface glycoprotein-601-640
+Surface glycoprotein-802-819
+Surface glycoprotein-888-909
+Membrane protein-1-24
+Membrane protein-132-151
+Nucleocapsid phosphoprotein-42-62
+Nucleocapsid phosphoprotein-153-172
+Nucleocapsid phosphoprotein-355-401
+

@@ -1,12 +1,20 @@
 from classes.Epitope import Epitope
+from itertools import chain
 
 class Sequence:
   def __init__(self, name, sequence, start_loc, stop_loc):
     self.name = name
     self.sequence = sequence
-    self.trimmed_seq = sequence[start_loc:stop_loc]
-    self.sequence_no_gaps = self.remove_gaps(self.trimmed_seq) # not needed
-    self.protein = self.translate(self.trimmed_seq)
+    # Trim sequence
+    self.sequence = sequence[start_loc:stop_loc]
+    with open('output/trimmed.fasta','a') as out:
+      out.write('>'+ str(name) + '\n')
+      out.write(str(self.sequence).rjust(stop_loc, '_') + '\n')
+    self.sequence_no_gaps = self.remove_gaps(self.sequence) # not needed
+    self.protein = self.translate(self.sequence)
+    with open('output/protein.fasta','a') as out:
+      out.write('>'+ str(name) + '\n')
+      out.write(str(self.protein) + '\n')
     self.mutations = []
     self.protein_diffs = []
     self.epitopes = []
@@ -38,7 +46,6 @@ class Sequence:
     return sequence.replace("-", "")
 
   def translate(self, sequence):
-    # TODO: add wobble codons
     table = {
         'ATA': 'I', 'ATC': 'I', 'ATT': 'I', 'ATG': 'M',
         'ACA': 'T', 'ACC': 'T', 'ACG': 'T', 'ACT': 'T',
@@ -86,11 +93,13 @@ class Sequence:
       if ref_protein[i] != '-':
         count += 1
       
-      # if no difference and not reference protein 
+      # if no difference and not the reference sequence
       if ref_protein[i] == self.protein[i] and not(is_ref) :
-        self.mutations.append('_')
+        self.mutations.append('-')
         
-      # if proteins are different or if is_ref is TRUE
+      # if proteins are different or if it is the reference sequence
+      # technically there should be no difference, but based on the requested output,
+      # we would like to see the reference sequence on top of the differences
       else:
         self.mutations.append(self.protein[i])
 
