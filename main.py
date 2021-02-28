@@ -64,10 +64,16 @@ def parse_alignment(fasta_file, ref_name, gene_name):
         seq += line.upper()
         # this is where the dictionary is defined
         if name == gene_name:
-          # ensure that the ref gene name and its sequence are at the top of the dictionary
+          if name in seq_dict.keys():
+            # delete the dictionary entry with incomplete sequence
+            # this happens when the ref sequence is in multiple lines
+            del seq_dict[name]
+          # ensure that the ref gene name and its sequence are at the top of the dictionary   
           temp_dict = {name:seq}
+          # this will override dictionary items with the same key/name
           temp_dict.update(seq_dict)
           seq_dict = temp_dict
+
         else:
           seq_dict[name] = seq
   
@@ -144,8 +150,18 @@ def plot_mutations(seq_dict, gene_name):
   
 def align_seq(fasta_file):
   # Input the location of your mucle alignment program
-  muscle_exe = '/Users/javierrico/.AliView/binaries/muscle3.8.31_i86darwin64' 
-  os.system(muscle_exe + ' -in ' + fasta_file + ' -out input/muscle.fasta')
+  # Current available programs:
+  # (1) muscle3.8.31_i86darwin64
+  # (2) mafft --default
+  muscle_exe = 'programs/muscle3.8.31_i86darwin64' 
+  mafft_exe = 'programs/mafft'
+  
+  align_using = 'mafft'
+  
+  if align_using == 'muscle':
+    os.system(muscle_exe + ' -in ' + fasta_file + ' -out input/temp_aligned.fasta')
+  else:
+    os.system(mafft_exe + ' ' + fasta_file + ' > input/temp_aligned.fasta' )
 
 #######################################################################
 
@@ -154,7 +170,7 @@ if __name__ == "__main__":
 # Align sequences using MUSCLE if the input is not yet aligned 
   if args.needs_alignment:
     align_seq(args.input)
-    args.input = 'input/muscle.fasta'
+    args.input = 'input/temp_aligned.fasta'
   
   # Empty the output files
   init_outfiles = True
