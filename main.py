@@ -9,8 +9,8 @@ import os
 
 '''
 Sample Run in Command Prompt/Terminal: 
-python3 main.py -o output/mutations.fasta -g input/Reference_genes_locations.txt -i input/010821-011521_indonesia.fasta
--ref "NC_045512.2 Severe acute respiratory syndrome coronavirus 2 isolate Wuhan-Hu-1, complete genome" -aln True
+python3 main.py -i references/Sequences/Morocco/48_Morocco_gisaid_hcov-19_2020_07_21_03.fasta -g input/reference_genes_locations.txt 
+-o output/mutations.fasta -ref "NC_045512.2 Severe acute respiratory syndrome coronavirus 2 isolate Wuhan-Hu-1, complete genome" -aln True
 '''
 
 
@@ -161,7 +161,7 @@ def align_seq(fasta_file):
   if align_using == 'muscle':
     os.system(muscle_exe + ' -in ' + fasta_file + ' -out input/temp_aligned.fasta')
   else:
-    os.system(mafft_exe + ' ' + fasta_file + ' > input/temp_aligned.fasta' )
+    os.system(mafft_exe + ' --auto ' + fasta_file + ' > input/temp_aligned.fasta' )
 
 #######################################################################
 
