@@ -1,3 +1,5 @@
+# -*- coding:utf-8 -*-
+
 import argparse
 from classes.Sequence import Sequence
 import numpy as np
@@ -19,20 +21,25 @@ parser = argparse.ArgumentParser(description="parses SNPs from alignments")
 parser.add_argument('-i', '--input_alignments_fasta', dest='input', help='input alignment file', required=True)
 
 parser.add_argument('-aln', '--needs_alignment', dest='needs_alignment', help='(Type: Bool) True if input still needs to be aligned,'
-                    'False if input is already aligned, e.g. -aln True, default value is False', 
-                    default=False, type=lambda x: (str(x).lower() in ['true', '1', 'yes']))
+                    'False if input is already aligned, e.g. -aln True, default value is True', 
+                    default=True, type=lambda x: (str(x).lower() in ['true', '1', 'yes']))
 
-parser.add_argument('-g', '--genes', dest='genes', help='input file with the location of genes', required=True)
+parser.add_argument('-loc', '--gene_loc', dest='gene_loc', help='input file with the location of genes', default='input/reference_genes_locations.txt' )
 
-parser.add_argument('-o', '--output', dest='out', help='base name for output files', required=True)
+parser.add_argument('-o', '--output', dest='out', help='base name for output files', default='output/mutations.fasta')
 
-parser.add_argument('-ref', '--reference_name', dest='ref',
-                    help='name of reference sequence in alignment to compare with other sequences; '
-                         'otherwise uses first sequence in alignment as reference')
+parser.add_argument('-ref', '--reference_name', dest='ref_name',
+                    help='name of reference sequence in alignment to compare with other sequences; otherwise uses first sequence in alignment as reference', 
+                    default='NC_045512.2 Severe acute respiratory syndrome coronavirus 2 isolate Wuhan-Hu-1, complete genome')
 
-parser.add_argument('-eps', '--epitope_regions', dest='eps', help='text file that lists epitopes to check')
+parser.add_argument('-g', '--genome', dest='ref_genome', help='fasta file with only the reference genome', 
+                    default='references/Sequences/References\ Sequences/NCBI\ Reference\ Sequence_NC_045512.2.fasta')
+
+parser.add_argument('-eps', '--epitope_regions', dest='eps', help='text file that lists epitopes to check', default='input/epitopes.txt')
 
 args = parser.parse_args()
+
+
 
 def parse_alignment(fasta_file, ref_name, gene_name):
   seq_dict = dict()
@@ -90,6 +97,7 @@ def calculate_protein_diffs(seq_dict, gene_name, ref_protein):
     seq = seq_dict[name]
     seq.calculate_protein_diffs(gene_name, ref_protein, name==gene_name)
 
+# Not necessary
 def parse_epitopes(epitope_file, seq_dict, ref_protein):
   with open(epitope_file) as eps:
     for line in eps:
@@ -122,92 +130,123 @@ def search_start_stop(ref_genome, gene_start, gene_stop):
 
   return gene_start, gene_stop
       
-def plot_mutations(seq_dict, gene_name):
   
-  arr = [v for v in seq_dict.values()]
-  arr_flat = list(chain.from_iterable(arr))
-  
-  print(arr)
-  print(arr_flat)
-  
-  amino = {'_' : 0, '-' : 1, 'F' : 2, 'C' : 3, 'A' : 4, 'I' : 5, 'E' : 6, 'D' : 7,
-           'G' : 8, 'L' : 9, 'K' : 10, 'Q' : 11, 'W' : 12, 'Y' : 13, 'H' : 14, 'R' : 15,
-           'T' : 16, 'N' : 17, 'M' : 18, 'V' : 19, 'P' : 20, 'S' : 21, 'X' : 22}
-           
-  df = pd.DataFrame(np.array([amino[i] for i in arr_flat]).reshape(15,len(arr)))    
-  fig, ax = plt.subplots()   
-  ax.imshow(df.values, vmin=0, cmap='jet')  
-  
-  for i in range(len(arr)):
-    for j in range(len(arr[0])):
-      ax.text(j,i, arr[i][j], ha='center', va='center')
-  
-  plt.title(str(gene_name))
-  ax.set_yticklabels([])
-  ax.set_xticklabels([])
-  ax.set_yticks([])
-  ax.set_xticks([])
-  
-def align_seq(fasta_file):
+def align_seq(inputs_fasta, reference_fasta):
   # Input the location of your mucle alignment program
   # Current available programs:
   # (1) muscle3.8.31_i86darwin64
-  # (2) mafft --default
+  # (2) mafft [default]
+  # MAFFT has the capability to align multiple sequences against a reference sequence https://mafft.cbrc.jp/alignment/software/closelyrelatedviralgenomes.html
   muscle_exe = 'programs/muscle3.8.31_i86darwin64' 
   mafft_exe = 'programs/mafft'
   
   align_using = 'mafft'
   
+  print('Aligning sequences...')
   if align_using == 'muscle':
-    os.system(muscle_exe + ' -in ' + fasta_file + ' -out input/temp_aligned.fasta')
+    os.system(muscle_exe + ' -in ' + inputs_fasta + ' -out input/temp_aligned.fasta')
   else:
-    os.system(mafft_exe + ' --auto ' + fasta_file + ' > input/temp_aligned.fasta' )
+    os.system(mafft_exe + ' --quiet --keeplength --6merpair --addfragments ' + inputs_fasta + ' ' + reference_fasta + ' > input/temp_aligned.fasta' )
+    
+  print('Aligning sequences...[Completed]\n')
+    
+# Replace a character on a specific index of a string    
+def replace_at(string, index, rep):    
+  return string[0:index] + rep + string[index+1:]  
+    
+# Remove entire column of gaps according to the reference genome    
+def remove_gaps(seq_dict, ref_name):
+  # Search for location of the gaps in the reference genome
+  indexes = [i for i, c in enumerate (seq_dict[ref_name]) if c == '-']
+  
+  # Delete the entire column of gap
+  for key in seq_dict.keys():
+    temp = seq_dict[key]
+    for index in indexes:
+      temp = replace_at(temp, index, '|')
+      seq_dict[key] = temp.replace('|','')
+  
+  # Return the dictionary with deleted columns of gaps    
+  return seq_dict
+
+def parse_input_txt(input_txt):
+  parsed = []
+  with open(input_txt) as data:
+    for line in data:
+      line = line.rstrip() # remove trailing whitespaces
+      line = line.split('-')
+      parsed.append(line)
+  return parsed
 
 #######################################################################
 
-if __name__ == "__main__":
- 
-# Align sequences using MUSCLE if the input is not yet aligned 
+if __name__ == "__main__":  
+  
+  # Welcome Message
+  width = os.get_terminal_size().columns
+  os.system('clear')
+  print('\n\n\n')
+  print('================================================================\n'.center(width))
+  print('SARS-COV-2 EPITOPE SURVEILLANCE'.center(width))
+  print('A Bioinformatics Project of Center for Informatics'.center(width))
+  print('University of San Agustin, Iloilo City, Philippines'.center(width))
+  print('Copyright \xa9 2021\n'.center(width))
+  print('Author: Jonathan Adam A. Rico, MSc.\n'.center(width))
+  print('================================================================\n\n'.center(width))
+
+  
+  # Align sequences using MUSCLE/MAFFT if the input is not yet aligned 
   if args.needs_alignment:
-    align_seq(args.input)
+    align_seq(args.input, args.ref_genome)
     args.input = 'input/temp_aligned.fasta'
+  # get reference genome name
+  ref_genome_name = args.ref_name
   
   # Empty the output files
-  init_outfiles = True
-#  open('output/trimmed.fasta', 'w').close()
   open('output/protein.fasta', 'w').close() 
   open(args.out, 'w').close()
   
+  # Create a list of B-cell epitope locations
+  epitopes = parse_input_txt(args.eps)      
   # Create a list of gene names
-  genes = []
-  with open(args.genes) as gene_data:
-    for line in gene_data:
-      line = line.rstrip() # remove trailing whitespaces
-      line = line.split('-')
-      genes.append(line)
+  genes = parse_input_txt(args.gene_loc)
       
   for i in range(0,len(genes)):
     gene_name = genes[i][0]
     gene_start = int(genes[i][1]) - 1
     gene_stop = int(genes[i][2])
-
-    # get reference genome name
-    ref_genome_name = args.ref
+    
     # read and process file
     # create sequence dictionary
     seq_dict, ref_genome_name = parse_alignment(args.input, ref_genome_name, gene_name)
+
+    # remove gaps in the reference genome and the corresponding column
+    #seq_dict = remove_gaps(seq_dict, gene_name)
 
     # search for the locations of the ref genome sequence start and stop codon
     # since the genome is not yet trimmed, gene_name still contains the entire genome
     ref_genome = seq_dict[gene_name]
     (start_loc, stop_loc) = search_start_stop(ref_genome, gene_start, gene_stop)
-    print("start codon at {} \nstop codon at {}".format(start_loc, stop_loc))
+    print("{} | start codon: {} | stop codon: {}\n".format(gene_name, start_loc+1, stop_loc))
+
+    # Create a string of values for bcell epitope
+    bcell_epitope = ''
+    last_epi_stop = 0
+    for j in range(len(epitopes)):
+      if gene_name == epitopes[j][0]:
+        epi_start = int(epitopes[j][1]) - 1
+        epi_stop = int(epitopes[j][2])
+        bcell_epitope = str(bcell_epitope) + '_' * (epi_start - last_epi_stop) + 'W' * (epi_stop - epi_start)
+        #print('B-cell epitope:{} '.format(epi_stop - epi_start))
+        last_epi_stop = epi_stop
 
     # Include the reference genome at the top of the Trimmed output file for checking purposes
-    if init_outfiles:
+    if i==0:
       # Initialize output files
-      open('output/trimmed.fasta', 'w').write('>' + str(ref_genome_name) + '\n' + str(ref_genome) + '\n')
-      init_outfiles = False   
+      open('output/trimmed.fasta', 'w').write('>' + str(ref_genome_name) + '\n' + str(ref_genome) + '\n')  
+    
+    open('output/protein.fasta', 'a').write('> B-Cell Epitope Regions\n' + str(bcell_epitope) + '\n')
+    open(args.out, 'a').write('> B-Cell Epitope Regions\n' + str(bcell_epitope) + '\n')
 
     # initialize sequences
     # seq_dict = { "name1": "SEQUENCE", "name2": "SEQUENCE" }
@@ -218,10 +257,10 @@ if __name__ == "__main__":
     ref_protein = seq_dict[gene_name].protein 
     calculate_protein_diffs(seq_dict, gene_name, ref_protein)
 
-    # parse epitopes
+    # parse epitopes (Not necessary)
     # calculate epitope protein diffs for each sequence against reference protein
-    if args.eps is not None:
-      parse_epitopes(args.eps, seq_dict, ref_protein)
+    #if args.eps is not None:
+    #  parse_epitopes(args.eps, seq_dict, ref_protein)
       
     # Append results in a single output file
     with open(args.out, 'a') as out:
@@ -232,9 +271,3 @@ if __name__ == "__main__":
           out.write(str(''.join(seq.mutations)) + '\n')
 
           
-    # Plot the protein differences
-    #plot_mutations(seq_dict, gene_name)
-          
-  
-  
-  # TODO: output separate file with epitope information; different format?

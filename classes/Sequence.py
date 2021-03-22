@@ -96,7 +96,7 @@ class Sequence:
       # if no difference and not the reference sequence
       if ref_protein[i] == self.protein[i] and not(is_ref) :
         self.mutations.append('-')
-        
+
       # if proteins are different or if it is the reference sequence
       # technically there should be no difference, but based on the requested output,
       # we would like to see the reference sequence on top of the differences

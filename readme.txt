@@ -1,6 +1,6 @@
 This program aligns multiple COVID DNA sequences, trims the genes of interest, translates to protein, and identifies mutations in epitope regions.
 
-Download the entire RNASeqAnalysis folder
+Download the entire DNASeqAnalysis folder
 
 # Example commandline to run script:
 
