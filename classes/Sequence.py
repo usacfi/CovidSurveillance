@@ -86,7 +86,7 @@ class Sequence:
     new_epi = Epitope(self, start, end, ref_protein)
     self.epitopes.append(new_epi)
 
-  def calculate_protein_diffs(self, ref_name, ref_protein, is_ref):
+  def calculate_protein_diffs(self, name, ref_name, ref_protein, is_ref, start_loc, df):
     count = 0
 
     for i in range(0, len(ref_protein)-1):
@@ -102,6 +102,12 @@ class Sequence:
       # we would like to see the reference sequence on top of the differences
       else:
         self.mutations.append(self.protein[i])
-
+        # Assuming that 'X, -, _' are not a real mutations
+        if self.protein[i] not in ['X', '-', '_'] and not(is_ref):
+          protein_diff = ref_protein[i] + str(i+1) + self.protein[i]
+          df.loc[int(df[df['ID']==name].index[0]), start_loc + i + 1] = protein_diff
+          #print('{} | {} | {}'.format(int(df[df['ID']==name].index[0]), start_loc + i + 1, protein_diff))
+          
+    return df
         
     

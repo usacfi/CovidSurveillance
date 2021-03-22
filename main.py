@@ -7,11 +7,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 from itertools import chain
+import seaborn as sns
 import os
 
 '''
 Sample Run in Command Prompt/Terminal: 
-python3 main.py -i references/Sequences/Morocco/48_Morocco_gisaid_hcov-19_2020_07_21_03.fasta -g input/reference_genes_locations.txt 
+python3 main.py -i references/Sequences/Morocco/48_Morocco_gisaid_hcov-19_2020_07_21_03.fasta -loc input/reference_genes_locations.txt 
 -o output/mutations.fasta -ref "NC_045512.2 Severe acute respiratory syndrome coronavirus 2 isolate Wuhan-Hu-1, complete genome" -aln True
 '''
 
@@ -91,11 +92,13 @@ def create_sequences(seq_dict, start_loc, stop_loc):
       seq = seq_dict[name]
       seq_dict[name] = Sequence(name, seq, start_loc, stop_loc) # instantiate Sequence
 
-def calculate_protein_diffs(seq_dict, gene_name, ref_protein):
+def calculate_protein_diffs(seq_dict, gene_name, ref_gene, start_loc, df):
   for name in seq_dict:
     # trigger protein diff calculation if sequence is not reference
     seq = seq_dict[name]
-    seq.calculate_protein_diffs(gene_name, ref_protein, name==gene_name)
+    df = seq.calculate_protein_diffs(name, gene_name, ref_gene, name==gene_name, start_loc, df)
+  return df
+
 
 # Not necessary
 def parse_epitopes(epitope_file, seq_dict, ref_protein):
@@ -191,7 +194,8 @@ if __name__ == "__main__":
   print('A Bioinformatics Project of Center for Informatics'.center(width))
   print('University of San Agustin, Iloilo City, Philippines'.center(width))
   print('Copyright \xa9 2021\n'.center(width))
-  print('Author: Jonathan Adam A. Rico, MSc.\n'.center(width))
+  print('Authors: Rico JA, Zamora PRF, Bolinas DK, Aguila RN,'.center(width))
+  print('Isip I, Dumancas G, Fenger D, de Castro RJ\n'.center(width))
   print('================================================================\n\n'.center(width))
 
   
@@ -230,20 +234,24 @@ if __name__ == "__main__":
     print("{} | start codon: {} | stop codon: {}\n".format(gene_name, start_loc+1, stop_loc))
 
     # Create a string of values for bcell epitope
+    epi_name = 'B cell'
     bcell_epitope = ''
     last_epi_stop = 0
     for j in range(len(epitopes)):
-      if gene_name == epitopes[j][0]:
-        epi_start = int(epitopes[j][1]) - 1
-        epi_stop = int(epitopes[j][2])
-        bcell_epitope = str(bcell_epitope) + '_' * (epi_start - last_epi_stop) + 'W' * (epi_stop - epi_start)
-        #print('B-cell epitope:{} '.format(epi_stop - epi_start))
-        last_epi_stop = epi_stop
+      if epi_name == epitopes[j][0]:
+        if gene_name == epitopes[j][1]:
+          epi_start = int(epitopes[j][2]) - 1
+          epi_stop = int(epitopes[j][3])
+          bcell_epitope = str(bcell_epitope) + '_' * (epi_start - last_epi_stop) + 'W' * (epi_stop - epi_start)
+          #print('B-cell epitope:{} '.format(epi_stop - epi_start))
+          last_epi_stop = epi_stop
 
     # Include the reference genome at the top of the Trimmed output file for checking purposes
     if i==0:
       # Initialize output files
-      open('output/trimmed.fasta', 'w').write('>' + str(ref_genome_name) + '\n' + str(ref_genome) + '\n')  
+      open('output/trimmed.fasta', 'w').write('>' + str(ref_genome_name) + '\n' + str(ref_genome) + '\n')
+      df = pd.DataFrame(seq_dict.keys(), columns=['ID'])  
+      df.loc[0,0] = ref_genome_name
     
     open('output/protein.fasta', 'a').write('> B-Cell Epitope Regions\n' + str(bcell_epitope) + '\n')
     open(args.out, 'a').write('> B-Cell Epitope Regions\n' + str(bcell_epitope) + '\n')
@@ -254,8 +262,8 @@ if __name__ == "__main__":
     # seq_dict = { "name1": Sequence(), "name2": Sequence() }
   
     # calculate protein diffs for each test sequence against the reference protein
-    ref_protein = seq_dict[gene_name].protein 
-    calculate_protein_diffs(seq_dict, gene_name, ref_protein)
+    ref_gene = seq_dict[gene_name].protein 
+    df = calculate_protein_diffs(seq_dict, gene_name, ref_gene, start_loc, df)
 
     # parse epitopes (Not necessary)
     # calculate epitope protein diffs for each sequence against reference protein
@@ -269,5 +277,40 @@ if __name__ == "__main__":
         if seq.name == gene_name or seq.name not in genes:
           out.write('>' + str(seq.name) + '\n') 
           out.write(str(''.join(seq.mutations)) + '\n')
+  
+  # Visualization of Variants vs. Number of Occurrences
+  aa_diffs = []        
+  for column in df.columns.values:
+    if column != 'ID':
+      for variant in df[column].dropna().unique():
+        if variant != ref_genome_name:
+          # Create gene and epitope columns
+          for i in range(len(genes)):
+            if column >= int(genes[i][1])-1 and column <= int(genes[i][2]):
+              gene = genes[i][0]
+              epitope = None
+              for j in range(len(epitopes)):
+                if gene == epitopes[j][1]:
+                  if column >= int(genes[i][1])-1 + int(epitopes[j][2])-1 and column <= int(genes[i][1])-1 + int(epitopes[j][3]):
+                    epitope = epitopes[j][0]
 
-          
+            
+          count = len(df[df[column]==variant])
+          aa_diffs.append([column, variant, count, gene, epitope])
+                
+  new_df = pd.DataFrame(aa_diffs, columns=['site', 'variant','instances', 'gene', 'epitope'])
+  new_df = new_df.sort_values(by='site')
+  new_df = new_df.reset_index(drop=True)
+  print(new_df)
+  g = sns.barplot(x=new_df['variant'], y=new_df['instances'], hue=new_df['gene'], saturation=0.5, dodge=False)
+  g.legend(loc='upper center', ncol=len(genes), title='Gene')
+  
+  # Annotate if the variants fall under epitope regions
+  for i in range(len(new_df['variant'])):
+    if new_df['epitope'][i] != None:
+      g.text(i, new_df['instances'][i]+0.25, 'B', fontdict=dict(color='black', fontsize=10),
+             horizontalalignment='center')
+  plt.title('Mutation profile of {} Philippine Sars-Cov-2 samples'.format(len(df)-1))           
+  plt.ylabel('Total # of variant instances (out of {})'.format(len(df)-1))
+  plt.xticks(rotation=45, fontsize=10, ha='right')
+  plt.show()        

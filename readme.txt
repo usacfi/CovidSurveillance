@@ -4,24 +4,25 @@ Download the entire DNASeqAnalysis folder
 
 # Example commandline to run script:
 
->>> python3 main.py -i references/Sequences/Morocco/48_Morocco_gisaid_hcov-19_2020_07_21_03.fasta -g input/reference_genes_locations.txt 
--o output/mutations.fasta -ref "NC_045512.2 Severe acute respiratory syndrome coronavirus 2 isolate Wuhan-Hu-1, complete genome" -aln True
+>>> python3 main.py -i references/Sequences/Morocco/48_Morocco_gisaid_hcov-19_2020_07_21_03.fasta  -aln True
 
 Required parameters:
  -i is the input fasta file with the reference genome and test genomes 
- -g is the input text file that indicates what and where are the relevant reference genes
- -o is the output fasta file
 
 Optional parameters:
  -ref is the reference genome name (Wuhan strain) the default is the name of the first genome in the input fasta file.
  -aln TRUE when the input needs alignment and FALSE when the input is already aligned
  -eps is the input text file that lists the epitope regions
+ -loc is the input text file that indicates what and where are the relevant reference genes
+ -g fasta file with only the reference genome
+ -o is the output fasta file
 
 # The program should run with Python 3.6 or later
 
 Input files: 
  - 48_Morocco_gisaid_hcov-19_2020_07_21_03.fasta
  - Reference_gene_locations.txt
+ - NCBI Reference Sequence_NC_045512.2.fasta
  - epitopes.txt (optional)
 
 Output files:
@@ -57,4 +58,4 @@ pip3 install [module_name]
 
 
 Let me know if there are corrections.
--jonathan 03/03/2021
+-jonathan 03/22/2021

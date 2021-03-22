@@ -1,11 +1,10 @@
-Surface glycoprotein-287-317
-Surface glycoprotein-524-598
-Surface glycoprotein-601-640
-Surface glycoprotein-802-819
-Surface glycoprotein-888-909
-Membrane glycoprotein-1-24
-Membrane glycoprotein-132-151
-Nucleocapsid phosphoprotein-42-62
-Nucleocapsid phosphoprotein-153-172
-Nucleocapsid phosphoprotein-355-401
-
+B cell-S-287-317
+B cell-S-524-598
+B cell-S-601-640
+B cell-S-802-819
+B cell-S-888-909
+B cell-M-1-24
+B cell-M-132-151
+B cell-N-42-62
+B cell-N-153-172
+B cell-N-355-401
