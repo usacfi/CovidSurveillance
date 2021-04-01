@@ -7,12 +7,12 @@ class Sequence:
     self.sequence = sequence
     # Trim sequence
     self.sequence = sequence[start_loc:stop_loc]
-    with open('output/trimmed.fasta','a') as out:
+    with open('output/02_trimmed.fasta','a') as out:
       out.write('>'+ str(name) + '\n')
       out.write(str(self.sequence).rjust(stop_loc, '_') + '\n')
     self.sequence_no_gaps = self.remove_gaps(self.sequence) # not needed
     self.protein = self.translate(self.sequence)
-    with open('output/protein.fasta','a') as out:
+    with open('output/03_protein.fasta','a') as out:
       out.write('>'+ str(name) + '\n')
       out.write(str(self.protein) + '\n')
     self.mutations = []

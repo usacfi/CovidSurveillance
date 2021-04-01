@@ -23,20 +23,23 @@ Input files:
  - 48_Morocco_gisaid_hcov-19_2020_07_21_03.fasta
  - Reference_gene_locations.txt
  - NCBI Reference Sequence_NC_045512.2.fasta
- - epitopes.txt (optional)
+ - epitopes.txt 
 
 Output files:
- - temp_aligned.fasta
- - trimmed.fasta
- - protein.fasta
- - mutations.fasta
+ - 01_temp_aligned.fasta
+ - 02_trimmed.fasta
+ - 03_protein.fasta
+ - 04_mutations.fasta
+ - 05_aminoacid_replacements.csv
+ - 06_mutation_profile.csv
+ - 07_mutation_profile.pdf
 
 Fasta files can be viewed using any alignment viewers, e.g. AliView
 
 Possible run-time errors:
 
 1. Running the program in Windows or Linux might yield an error when (-aln TRUE). This is because the current MUSCLE and MAFFT programs in the folder are only compatible for MAC computers. 
-Solution: You can download the MUSCLE/MAFFT programs **compatible to your OS** free online. Or you can change the input parameter (-aln FALSE), note that the program assumes that your input file is already aligned.
+Solution: You can download the MUSCLE/MAFFT programs **compatible to your OS** free online. Or you can change the input parameter (-aln FALSE), but note here that the program assumes that your input file is already aligned.
 	
 2. An error might come up when you are running in Python 2.
 Solution: install Python3 (recommended) or convert the codes into Python 2
