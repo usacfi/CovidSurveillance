@@ -4,12 +4,15 @@ import argparse
 from classes.Sequence import Sequence
 from classes.Functions import *
 import pandas as pd
-
+import time
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 '''
 Sample Run in Command Prompt/Terminal: 
-python3 main.py -i references/Sequences/Morocco/48_Morocco_gisaid_hcov-19_2020_07_21_03.fasta -aln True
+python3 main.py -i references/Sequences/Philippines/188_Philippines_gisaid_hcov-19_2021_03_22_02.fasta 
+                -m references/Sequences/Philippines/188_Philippines_gisaid_hcov-19_2021_03_22_02.tsv 
 '''
 
 
@@ -20,6 +23,8 @@ parser.add_argument('-i', '--input_alignments_fasta', dest='input', help='input 
 parser.add_argument('-aln', '--needs_alignment', dest='needs_alignment', help='(Type: Bool) True if input still needs to be aligned,'
                     'False if input is already aligned, e.g. -aln True, default value is True', 
                     default=True, type=lambda x: (str(x).lower() in ['true', '1', 'yes']))
+
+parser.add_argument('-m', '--metadata', dest='metadata', help='Patient Status Metadata ().tsv) file', required=True)
 
 parser.add_argument('-loc', '--gene_loc', dest='gene_loc', help='input file with the location of genes', default='input/reference_genes_locations.txt' )
 
@@ -43,6 +48,8 @@ args = parser.parse_args()
 
 if __name__ == "__main__":  
   
+  tic = time.perf_counter()
+  
   # Welcome Message
   width = os.get_terminal_size().columns
   os.system('clear')
@@ -57,24 +64,24 @@ if __name__ == "__main__":
   print('================================================================\n\n'.center(width))
 
   # Open Metadata file
-  meta_df = pd.read_csv('references/Sequences/Philippines/Other Files/[Patient Status Metadata] gisaid_hcov-19_2021_03_23_08.tsv', sep='\t')
+  meta_df = pd.read_csv(args.metadata, sep='\t')
   # Combine three columns into one column to match the ID
-  meta_df['ID'] = meta_df[meta_df.columns[0:3]].apply(
-    lambda x: '|'.join(x.dropna().astype(str)), axis=1
-  )
+  meta_df['ID'] = meta_df[meta_df.columns[0:3]].apply( lambda x: '|'.join(x.dropna().astype(str)), axis=1)
   
   # Align sequences using MUSCLE/MAFFT if the input is not yet aligned 
   if args.needs_alignment:
-    align_seq(args.input, args.ref_genome)
-    args.input = 'output/01_temp_aligned.fasta'
+    output_alignment = 'output/01_aligned.fasta'
+    align_seq(args.input, args.ref_genome, output_alignment)
+    args.input = output_alignment
   # get reference genome name
   ref_genome_name = args.ref_name
+  
   
   # Empty the output files
   open('output/03_protein.fasta', 'w').close() 
   open(args.out, 'w').close()
   
-  # Create a list of B-cell epitope locations
+  # Create a list of epitope locations
   epitopes = parse_input_txt(args.eps)      
   # Create a list of gene names
   genes = parse_input_txt(args.gene_loc)
@@ -95,25 +102,24 @@ if __name__ == "__main__":
     # since the genome is not yet trimmed, gene_name still contains the entire genome
     ref_genome = seq_dict[gene_name]
     (start_loc, stop_loc) = search_start_stop(ref_genome, gene_start, gene_stop)
-    print("{} | start codon: {} | stop codon: {}\n".format(gene_name, start_loc+1, stop_loc))
+    print("{} | start codon: {} | stop codon: {}".format(gene_name, start_loc+1, stop_loc))
 
     # Create a string of values for each epitopes
     bcell_epitope = '_' * int((gene_stop - gene_start + 1)/3 - 1) 
-    tcell_epitope = '_' * int((gene_stop - gene_start + 1)/3 - 1) 
-    for j in range(len(epitopes)):
-      if epitopes[j][0] == 'B cell':
-        if gene_name == epitopes[j][1]:
-          epi_start = int(epitopes[j][2]) - 1
-          epi_stop = int(epitopes[j][3])
+    tcell_epitope_c1 = '_' * int((gene_stop - gene_start + 1)/3 - 1)
+    tcell_epitope_c2 = '_' * int((gene_stop - gene_start + 1)/3 - 1)
+    
+    for epitope in epitopes:
+      if gene_name == epitope[1]:
+        epi_start = int(epitope[2]) - 1
+        epi_stop = int(epitope[3])
+        if epitope[0] == 'B cell':
           bcell_epitope = bcell_epitope[0:epi_start] + "W" * (epi_stop - epi_start) + bcell_epitope[epi_stop:]
-          #print('B-cell epitope:{} '.format(epi_stop - epi_start))
-      elif epitopes[j][0] == 'T cell':
-        if gene_name == epitopes[j][1]:
-          epi_start = int(epitopes[j][2]) - 1
-          epi_stop = int(epitopes[j][3])
-          tcell_epitope = tcell_epitope[0:epi_start] + "W" * (epi_stop - epi_start) + tcell_epitope[epi_stop:]
-          #print('T-cell epitope:{} {} '.format(epi_start+1, epi_stop))          
-        
+        elif epitope[0] == 'T cell (class I)':
+          tcell_epitope_c1 = tcell_epitope_c1[0:epi_start] + "W" * (epi_stop - epi_start) + tcell_epitope_c1[epi_stop:]
+        elif epitope[0] == 'T cell (class II)':
+          tcell_epitope_c2 = tcell_epitope_c2[0:epi_start] + "W" * (epi_stop - epi_start) + tcell_epitope_c2[epi_stop:]
+
 
     # Include the reference genome at the top of the Trimmed output file for checking purposes
     if i==0:
@@ -123,10 +129,12 @@ if __name__ == "__main__":
       df['ID'] = df['ID'].replace([gene_name],ref_genome_name)
       df = df.merge(meta_df, how='left', on='ID')
     
-    open('output/03_protein.fasta', 'a').write('> B-Cell Epitope Regions\n' + str(bcell_epitope) + '\n')
-    open('output/03_protein.fasta', 'a').write('> T-Cell Epitope Regions\n' + str(tcell_epitope) + '\n')    
-    open(args.out, 'a').write('> B-Cell Epitope Regions\n' + str(bcell_epitope) + '\n')
-    open(args.out, 'a').write('> T-Cell Epitope Regions\n' + str(tcell_epitope) + '\n')    
+    open('output/03_protein.fasta', 'a').write('>B-Cell\n' + str(bcell_epitope) + '\n')
+    open('output/03_protein.fasta', 'a').write('>T-Cell (class I)\n' + str(tcell_epitope_c1) + '\n')
+    open('output/03_protein.fasta', 'a').write('>T-Cell (class II)\n' + str(tcell_epitope_c2) + '\n')        
+    open(args.out, 'a').write('>B-Cell\n' + str(bcell_epitope) + '\n')
+    open(args.out, 'a').write('>T-Cell (class I)\n' + str(tcell_epitope_c1) + '\n')
+    open(args.out, 'a').write('>T-Cell (class II)\n' + str(tcell_epitope_c2) + '\n')    
 
     # initialize sequences
     # seq_dict = { "name1": "SEQUENCE", "name2": "SEQUENCE" }
@@ -152,14 +160,18 @@ if __name__ == "__main__":
   
   # Create a dataframe with mutation and respective instances
   new_df = create_df(df, genes, epitopes)
-  print(new_df[new_df.columns[0:6]])
+  #print(new_df[new_df.columns[0:6]])
   
   # Save the dataframes into separate files
   df.to_csv('output/05_aminoacid_replacements.csv')
-  new_df.to_csv('output/06_mutation_profile.csv')
+  new_df.to_csv('output/06_unique_mutations.csv')
+
   
-  # Plot the mutation profile
-  plot_mutation_profile(new_df, genes, len(df))  
-  
+  # Plot the mutations
+  plot_mutations(fasta_to_df('output/04_mutations.fasta'), meta_df, epitopes, genes)  
+ 
   # Plot mutations geographically
   geoplot_mutations(new_df)   
+
+  toc = time.perf_counter()
+  print('\nOverall Runtime: {:.4f} seconds\n'.format(toc-tic))
