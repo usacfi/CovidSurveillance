@@ -6,13 +6,14 @@ from classes.Functions import *
 import pandas as pd
 import time
 import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
+warnings.filterwarnings('ignore')
+#warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 '''
 Sample Run in Command Prompt/Terminal: 
-python3 main.py -i references/Sequences/Philippines/188_Philippines_gisaid_hcov-19_2021_03_22_02.fasta 
-                -m references/Sequences/Philippines/188_Philippines_gisaid_hcov-19_2021_03_22_02.tsv 
+python3 main.py -i "references/Sequences/Philippines/High_Coverage_Sequences/High_Coverage_Philippines_as_of_April_27-Sequences.fasta" 
+                -m "references/Sequences/Philippines/High_Coverage_Sequences/High_Coverage_Philippines_as_of_April_27-Patient_Metadata.tsv"
 '''
 
 
