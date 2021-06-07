@@ -611,18 +611,18 @@ def plot_mutations(fasta_DF, meta_DF, epitopes, proteins):
   
   for nprot in range(1,len(proteins) + 1): 
     prot_DF = fasta_DF[int(len(fasta_DF)/4) * (nprot-1) : int(len(fasta_DF)/4) * nprot]
-  
+    header = [None,None,None,None]
+    prot_DF['Collection date'] = header.extend(meta_DF['Collection date'].tolist())
+    prot_DF[4:] = prot_DF[4:].sort_values(by='Collection date', ascending=False)
+    meta_DF = meta_DF.sort_values(by='Collection date', ascending=False)
+    
     for batch in range(1,int(np.ceil(len(prot_DF)/display_size)) + 1):      
-
       fasta_df = prot_DF[0:4].append(prot_DF[display_size * (batch - 1) + 4 : display_size * batch + 4])
       meta_df = meta_DF[display_size * batch - display_size : display_size * batch]
       fasta_df.reset_index(drop=True, inplace=True)
       meta_df.reset_index(drop=True, inplace=True)
-      print('\nCreating visualizations for {} protein batch #{}'.format(fasta_df['name'][3], batch))
-      #print('from {} to {}'.format(end_slice-50, end_slice))
-      #print(fasta_df.index.tolist())
-      #print(meta_df.index.tolist())
-      #continue
+      print('\nCreating visualizations for {} protein batch #{}...'.format(fasta_df['name'][3], batch))
+
     
       df = pd.DataFrame(fasta_df['sequence'].str.replace('=','X'))
       df = pd.DataFrame(df['sequence'].str.replace('-','X'))
@@ -665,16 +665,21 @@ def plot_mutations(fasta_DF, meta_DF, epitopes, proteins):
       restriction.iloc[1] = tcell1_res.iloc[1]
       restriction.iloc[2] = tcell2_res.iloc[2]
        
-      # mutation name hover data    
+      # mutation name hover data  e.g. N501Y  
       mutation = aa.iloc[3] + (aa.columns+1).astype(str) + aa    
       mutation.iloc[:4] = ''      
   
       # radical and conservative hover data
-      radical_mask = aa.iloc[3] + aa 
+      radical_mask = aa.iloc[3] + aa # e.g. DA
       radical_mask = radical_mask.mask(radical_mask.isin(radical_list('grantham')), 'Radical')  
       radical_mask = radical_mask.mask(radical_mask!='Radical', 'Conservative')  
       radical_mask.iloc[:4] = ''
       
+      # Color code the mutations Red (radical) and Green (conservative)
+      radicality_color = zdf.mask(radical_mask=='Radical',0.95)
+      radicality_color = radicality_color.mask(radical_mask=='Conservative',0.54)
+      radicality_color = radicality_color.mask(aa=='X',None)
+      zdf.iloc[4:] = radicality_color.iloc[4:] 
               
       # Create a Heatmap
       layout = go.Layout(
@@ -691,7 +696,7 @@ def plot_mutations(fasta_DF, meta_DF, epitopes, proteins):
       fig = go.Figure(data=go.Heatmap(
                 x = np.arange(1,len(z[0])+1),
                 y = y[::-1],
-                z = z,
+                z = zdf,
                 customdata = np.dstack((aa_code, 
                                         bcell_mask, 
                                         tcell1_mask, 
@@ -717,8 +722,10 @@ def plot_mutations(fasta_DF, meta_DF, epitopes, proteins):
                                 "<extra></extra>"),
                 layout = layout)
                  
-      fig.update_layout(title='Sars-Cov-2 Mutations Viz | {} Protein | {} '.format(fasta_df['name'][3], 
-                        meta_df['Location'][0].split('/')[1].rstrip().lstrip()),
+      fig.update_layout(title='Sars-Cov-2 Mutations Viz | {} Protein | {} | {} to {}'.format(fasta_df['name'][3], 
+                        meta_df['Location'][0].split('/')[1].rstrip().lstrip(), 
+                        meta_df['Collection date'][len(meta_df)-1],
+                        meta_df['Collection date'][4]),
                         xaxis=dict( rangeslider=dict(
                         visible=True)))    
                 
@@ -747,7 +754,7 @@ def plot_mutations(fasta_DF, meta_DF, epitopes, proteins):
                                 'epitope_r_mutations':bcell_rhits + tcell1_rhits + tcell2_rhits})
   
       summary_table(table_df, fasta_df, meta_df, batch)
- 
+
 
 
 
@@ -758,9 +765,9 @@ def summary_table(table_df, fasta_df, meta_df, batch):
                     'Number of amino<br>acid substitutions<br>in the protein',
                     'Number of amino<br>acid substitutions<br>within epitope regions',
                     'Number of amino<br>acid substitutions<br>with radical hits',
-                    'Number of B cell epitopes<br> with radical hits',
-                    'Number of T cell epitopes<br> with radical hits',
-                    'Total number of epitopes<br> with radical hits'
+                    'Number of B cell epitopes<br>with radical hits',
+                    'Number of T cell epitopes<br>with radical hits',
+                    'Total number of epitopes<br>with radical hits'
                   ] 
   
   table_plot = go.Figure(data=[go.Table(
@@ -780,8 +787,10 @@ def summary_table(table_df, fasta_df, meta_df, batch):
                  fill_color=[['white','lightgrey','white','lightgrey']*len(table_df[4:])],
                  align=['left','center'])) ])  
   
-  table_plot.update_layout(title='Summary Table | {} Protein | {} '.format(fasta_df['name'][3], 
-                    meta_df['Location'][0].split('/')[1].rstrip().lstrip()),
+  table_plot.update_layout(title='Summary Table | {} Protein | {} | {} to {}'.format(fasta_df['name'][3], 
+                    meta_df['Location'][0].split('/')[1].rstrip().lstrip(),
+                    meta_df['Collection date'][len(meta_df)-1],
+                    meta_df['Collection date'][4]),
                     )
   
   table_plot.write_html('output/08_table_{}_{}.html'.format(fasta_df['name'][3],batch))
