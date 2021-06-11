@@ -68,7 +68,7 @@ if __name__ == "__main__":
   meta_df = pd.read_csv(args.metadata, sep='\t')
   # Combine three columns into one column to match the ID
   meta_df['ID'] = meta_df[meta_df.columns[0:3]].apply( lambda x: '|'.join(x.dropna().astype(str)), axis=1)
-  
+
   # Align sequences using MUSCLE/MAFFT if the input is not yet aligned 
   if args.needs_alignment:
     output_alignment = 'output/01_aligned.fasta'
@@ -172,7 +172,7 @@ if __name__ == "__main__":
   plot_mutations(fasta_to_df('output/04_mutations.fasta'), meta_df, epitopes, genes)  
  
   # Plot mutations geographically
-  geoplot_mutations(new_df)   
+  plot_variants(meta_df)   
 
   toc = time.perf_counter()
   print('\nOverall Runtime: {:.4f} seconds\n'.format(toc-tic))
