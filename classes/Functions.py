@@ -5,8 +5,6 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import seaborn as sns
 import os
-import folium
-from folium.plugins import MarkerCluster
 import osmnx as ox
 import time
 import copy
@@ -291,7 +289,7 @@ def radical_list(criteria):
   
   return radicals
     
-    
+# Not necessary    
 def instances_per_region(df, site, mutation):
   
   instance_list = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]              
@@ -796,27 +794,56 @@ def summary_table(table_df, fasta_df, meta_df, batch):
   table_plot.write_html('output/08_table_{}_{}.html'.format(fasta_df['name'][3],batch))
 
   
+
+def extract_region(meta_df):
+  if len(meta_df.split('/')) > 2:
+    region = meta_df.split('/')[2].lstrip().rstrip()
+    
+    # Enumerate all possible names of the regions
+    ph_regions_dict = { 0  : ['NCR', 'Manila', 'National Capital Region'], 
+                        1  : ['CAR', 'Cordillera Administrative Region'],
+                        2  : ['Region I', 'Ilocos Region'],
+                        3  : ['Region II','Cagayan Valley'],
+                        4  : ['Region III', 'Central Luzon'],
+                        5  : ['Region IV-A', 'Calabarzon'],
+                        6  : ['Region IV-B', 'Mimaropa'],
+                        7  : ['Region V', 'Bicol Region'],
+                        8  : ['Region VI', 'Western Visayas'],
+                        9  : ['Region VII', 'Central Visayas'],
+                        10 : ['Region VIII', 'Eastern Visayas'],
+                        11 : ['Region IX','Zamboanga Peninsula'],
+                        12 : ['Region X','Northern Mindanao'],
+                        13 : ['Region XI','Davao Region'],
+                        14 : ['Region XII', 'SOCCKSARGEN'],
+                        15 : ['Caraga', 'Davao Oriental'],
+                        16 : ['BARMM', 'ARMM']}
+    
+    for key,value in ph_regions_dict.items():
+      if region in value:
+        return key     
+
   
   
   
-def geoplot_mutations(df):
-  # https://www.openstreetmap.org/export
-  llat = 5.091
-  ulat = 21.412
-  llon = 116.499
-  ulon = 127.134
-  center = [(llat+ulat)/2, (llon+ulon)/2]
+def plot_variants(meta_df):
+
+  # Create a Regions column in the meta data dataframe
+  meta_df['Region_id'] = meta_df['Location'].apply(extract_region)
+  meta_df = meta_df[~meta_df['Region_id'].isna()]
+  meta_df['Region_id'] = meta_df['Region_id'].astype(int)
+  lineages = meta_df['Lineage'].unique()
   
-  regions = df.columns[6:].values
-  radical = np.zeros([len(regions)], dtype='int')
-  conservative = np.zeros([len(regions)], dtype='int')
-  vaccine_index = np.zeros(len(regions))
-  #latitude = np.zeros([len(regions)])
-  #longitude = np.zeros([len(regions)])
   
-  ph_regions_latitude = [14.5472655, 17.35971005, 15.855663, 16.7305959, 15.1954795, 14.16052895,
-                         13.072377, 13.42289175, 10.69777705, 10.6419531, 11.8029647, 8.6549449,
-                         8.486114, 7.0428208, 6.2965755, 9.2471392, 5.8506231]
+  ph_regions = [  'NCR', 'CAR', 'Region I', 'Region II', 'Region III', 
+                  'Region IV-A', 'Region IV-B', 'Region V', 'Region VI', 'Region VII', 
+                  'Region VIII', 'Region IX', 'Region X', 'Region XI', 'Region XII', 
+                  'Caraga', 'BARMM']
+
+  
+  ph_regions_latitude = [ 14.5472655, 17.35971005, 15.855663, 16.7305959, 15.1954795, 
+                          14.16052895, 13.072377, 13.42289175, 10.69777705, 10.6419531, 
+                          11.8029647, 8.6549449, 8.486114, 7.0428208, 6.2965755, 
+                          9.2471392, 5.8506231]
   
   ph_regions_longitude = [120.98448771, 121.07525292, 120.1341247, 121.54067657, 121.13104248,
                          121.24256648, 121.3276166, 123.41103829, 122.58101501, 123.938142,
@@ -825,33 +852,46 @@ def geoplot_mutations(df):
                
   latitude = ph_regions_latitude
   longitude = ph_regions_longitude             
-  
-  for i in range(len(regions)):
-    radical[i] = df[df['replacement']=='Radical'][regions[i]].agg(sum)
-    conservative[i] = df[df['replacement']=='Conservative'][regions[i]].agg(sum)
-    vaccine_index[i] = radical[i]/(radical[i] + conservative[i] + 1e-9) 
-    #latitude[i],longitude[i] = ox.geocode(str(regions[i]))
+
+
     
-  regional_df = pd.DataFrame({'region':regions,
+  regional_df = pd.DataFrame({'region':ph_regions,
                               'longitude':longitude,
-                              'latitude':latitude,
-                              'radical':radical,
-                              'conservative':conservative,
-                              'index':vaccine_index})
+                              'latitude':latitude})
   
-  my_map = folium.Map(location = center, 
-                      zoom_start=6, 
-                      tiles='Stamen Terrain')
-                      
-  for j in range(len(regions)):
-    if int(regional_df['radical'][j]) != 0:
-      folium.CircleMarker([ regional_df['latitude'][j], regional_df['longitude'][j]], 
-                        radius=regional_df['index'][j] * 50, 
-                        color='red', 
-                        opacity=0.5,
-                        tooltip=regional_df['region'][j], 
-                        popup='Vaccine Index: {:.4}'.format(regional_df['index'][j]),
-                        fill=True, 
-                        fillColor='red').add_to(my_map)
+  # Insert empty columns of unique lineages                            
+  regional_df = pd.concat([regional_df, pd.DataFrame(columns=lineages)])
+  # Calculate the count per lineage per region
+  groupby = pd.DataFrame(meta_df.groupby(['Lineage', 'Region_id'])['Accession ID'].count())
+  # Insert the resulting counts into the regional_df
+  for i in range(len(groupby)):
+    lineage = groupby.index[i][0]
+    region_id = groupby.index[i][1]
+    regional_df[lineage][region_id] = groupby['Accession ID'][i]
   
-  my_map.save('output/09_mutation_geomap.html') 
+  # Variants of Concern and Variants under investigation 
+  voc_vui = [ 'B.1.1.7',    # VOC Alpha B.1.1.7 UK
+              'B.1.351',    # VOC Beta B.1.351 South Africa
+              'B.1.429',    # VUI Epsilon B.1.427+B.1.429 USA/California
+              'B.1.427',    # VUI Epsilon B.1.427+B.1.429 USA/California
+              'P.1',        # VOC Gamma P.1 Brazil
+              'B.1.526', 
+              'B.1.525',    # VUI Eta B.1.525 UK/Nigeria
+              'P.2', 
+              'P.3', 
+              'B.1.617']    # VUI Delta B.1.617+ India
+  
+  data = []  
+  for lineage in lineages:
+    if lineage in voc_vui:
+      data.append(go.Bar(name=lineage, x=regional_df.region, y=regional_df[lineage]))
+
+  fig = go.Figure(data=data)
+
+  fig.update_layout(title='Sars-Cov-2 Variants | {} '.format(meta_df['Location'][0].split('/')[1].rstrip().lstrip()), 
+                    barmode='stack',
+                    )    
+            
+  fig.update_yaxes(title_text="Count")
+  
+  fig.write_html('output/09_variants_per_region.html') 
