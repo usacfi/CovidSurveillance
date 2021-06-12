@@ -2,6 +2,7 @@ from classes.Sequence import Sequence
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import seaborn as sns
 import os
@@ -824,51 +825,14 @@ def extract_region(meta_df):
 
   
   
-  
 def plot_variants(meta_df):
-
+  '''Creates a bar chart of the count of variants per region'''
+  
   # Create a Regions column in the meta data dataframe
   meta_df['Region_id'] = meta_df['Location'].apply(extract_region)
   meta_df = meta_df[~meta_df['Region_id'].isna()]
   meta_df['Region_id'] = meta_df['Region_id'].astype(int)
-  lineages = meta_df['Lineage'].unique()
-  
-  
-  ph_regions = [  'NCR', 'CAR', 'Region I', 'Region II', 'Region III', 
-                  'Region IV-A', 'Region IV-B', 'Region V', 'Region VI', 'Region VII', 
-                  'Region VIII', 'Region IX', 'Region X', 'Region XI', 'Region XII', 
-                  'Caraga', 'BARMM']
 
-  
-  ph_regions_latitude = [ 14.5472655, 17.35971005, 15.855663, 16.7305959, 15.1954795, 
-                          14.16052895, 13.072377, 13.42289175, 10.69777705, 10.6419531, 
-                          11.8029647, 8.6549449, 8.486114, 7.0428208, 6.2965755, 
-                          9.2471392, 5.8506231]
-  
-  ph_regions_longitude = [120.98448771, 121.07525292, 120.1341247, 121.54067657, 121.13104248,
-                         121.24256648, 121.3276166, 123.41103829, 122.58101501, 123.938142,
-                         124.8663766,  123.4243754, 124.65677618, 125.580953, 124.9860759,
-                         125.85578189, 120.02840346] 
-               
-  latitude = ph_regions_latitude
-  longitude = ph_regions_longitude             
-
-
-    
-  regional_df = pd.DataFrame({'region':ph_regions,
-                              'longitude':longitude,
-                              'latitude':latitude})
-  
-  # Insert empty columns of unique lineages                            
-  regional_df = pd.concat([regional_df, pd.DataFrame(columns=lineages)])
-  # Calculate the count per lineage per region
-  groupby = pd.DataFrame(meta_df.groupby(['Lineage', 'Region_id'])['Accession ID'].count())
-  # Insert the resulting counts into the regional_df
-  for i in range(len(groupby)):
-    lineage = groupby.index[i][0]
-    region_id = groupby.index[i][1]
-    regional_df[lineage][region_id] = groupby['Accession ID'][i]
-  
   # Variants of Concern and Variants of Interest 
   voc_voi = {   
                 'B.1.1.7'  : 'VOC Alpha B.1.1.7 UK',
@@ -882,19 +846,95 @@ def plot_variants(meta_df):
                 'P.3'      : 'VOI Theta P.3 Philippines',
                 'B.1.526'  : 'VOI Iota B.1.526 USA',
                 'B.1.617.1': 'VOI Kappa B.1.617.1 India',
-            }          
-  
-  data = []  
-  for lineage in lineages:
-    if lineage in voc_voi.keys():
-      data.append(go.Bar(name=voc_voi[lineage], x=regional_df.region, y=regional_df[lineage]))
+            }
 
-  fig = go.Figure(data=data)
+  lineages = meta_df['Lineage'].unique()
+  lineages = list(set(lineages).intersection(voc_voi.keys()))
+
+  ph_regions = [  'NCR', 'CAR', 'Region I', 'Region II', 'Region III', 
+                  'Region IV-A', 'Region IV-B', 'Region V', 'Region VI', 'Region VII', 
+                  'Region VIII', 'Region IX', 'Region X', 'Region XI', 'Region XII', 
+                  'Caraga', 'BARMM']
+
+
+  ph_regions_latitude = [ 14.5472655, 17.35971005, 15.855663, 16.7305959, 15.5, 
+                          14.16052895, 13.072377, 13.42289175, 11, 10.6419531, 
+                          11.9, 8.5, 8.3, 7.0428208, 6.2965755, 
+                          9.2471392, 5.2]
+
+  ph_regions_longitude = [121, 121.07525292, 120.1341247, 121.54067657, 121.13104248,
+                         121.24256648, 121.3276166, 123.41103829, 122.58101501, 123.938142,
+                         125,  123.4243754, 124.65677618, 125.580953, 124.9860759,
+                         125.85578189, 120.02840346] 
+             
+  latitude = ph_regions_latitude
+  longitude = ph_regions_longitude             
+
+
+  
+  regional_df = pd.DataFrame({'region':ph_regions,
+                              'longitude':longitude,
+                              'latitude':latitude})
+
+  # Insert empty columns of unique lineages                            
+  regional_df = regional_df.join(pd.DataFrame(0, index=range(len(regional_df)), columns=lineages))
+  # Calculate the count per lineage per region
+  groupby = pd.DataFrame(meta_df.groupby(['Lineage', 'Region_id'])['Accession ID'].count())
+  # Insert the resulting counts into the regional_df
+  for i in range(len(groupby)):
+    lineage = groupby.index[i][0]
+    if lineage in lineages:
+      region_id = groupby.index[i][1]
+      regional_df[lineage][region_id] = groupby['Accession ID'][i]
+
+  fig = make_subplots(rows=1, cols=2, 
+                      specs=[[{'type':'scattergeo'}, {'type':'xy'}]])
+
+  i = 0
+  bar_data = [] 
+  colors = ['red','blue','green','orange','brown','violet','yellow','grey','teal','lightgreen','black'] 
+    
+  for lineage in lineages:
+    
+    fig.add_trace(go.Bar( 
+      name = voc_voi[lineage], 
+      x = regional_df.region, 
+      y = regional_df[lineage], 
+      marker_color = colors[i]),
+      row=1, col=2)
+    
+    fig.add_trace(go.Scattergeo(
+      lon = regional_df.longitude,
+      lat = regional_df.latitude,
+      text = regional_df.region, 
+      name = voc_voi[lineage], 
+      showlegend=False,
+      marker = dict(
+        size = regional_df[lineage]/5,
+        color = colors[i], 
+        line_width = 0,
+        opacity  = 0.5,
+      )),
+      row=1, col=1)
+    i = i + 1    
 
   fig.update_layout(title='Sars-Cov-2 Variants | {} '.format(meta_df['Location'][0].split('/')[1].rstrip().lstrip()), 
                     barmode='stack',
-                    )    
-            
-  fig.update_yaxes(title_text="Count")
-  
+                    geo_resolution = 50,
+                    geo_scope = 'asia',
+                    geo_showframe = True,
+                    geo_showcoastlines = True,
+                    geo_landcolor = "rgb(217, 217, 217)",
+                    geo_countrycolor = "black" ,
+                    geo_coastlinecolor = "black",
+                    geo_projection_type = 'mercator',
+                    geo_lonaxis_range= [ 115.0, 130.0 ],
+                    geo_lataxis_range= [ 5.0, 20.0 ],
+                    )
+                            
+  fig['layout']['yaxis']['title']='Count'
   fig.write_html('output/09_variants_per_region.html') 
+  
+  
+  
+  
