@@ -623,7 +623,7 @@ def plot_mutations(fasta_DF, meta_DF, epitopes, proteins):
 
     
       df = pd.DataFrame(fasta_df['sequence'].str.replace('=','X'))
-      df = pd.DataFrame(df['sequence'].str.replace('-','X'))
+      #df = pd.DataFrame(df['sequence'].str.replace('-','X'))
       df = pd.DataFrame(df['sequence'].str.replace('_','X'))
 
     
@@ -644,7 +644,7 @@ def plot_mutations(fasta_DF, meta_DF, epitopes, proteins):
                   'G':0.80, 'H':0.52, 'I':0.50, 'K':0.95, 'L':0.40,
                   'M':0.18, 'N':0.60, 'P':0.75, 'Q':0.65, 'R':0.85,
                   'S':0.54, 'T':0.57, 'V':0.18, 'W':0.12, 'Y':0.20,
-                  'X':None, 
+                  '-':0.30, 'X':None, 
                  }
   
       # Replace amino acids with integers
