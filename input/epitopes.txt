@@ -1,48 +1,55 @@
-B cell-S-287-317
-B cell-S-524-598
-B cell-S-601-640
-B cell-S-802-819
-B cell-S-888-909
-B cell-M-1-24
-B cell-M-132-151
-B cell-N-42-62
-B cell-N-153-172
-B cell-N-355-401
-T cell-N-5-17
-T cell-N-75-87
-T cell-N-79-87
-T cell-nsp12-318-326
-T cell-nsp3-364-372
-T cell-nsp3-829-838
-T cell-nsp3-829-839
-T cell-nsp3-830-839
-T cell-nsp3-1407-1415
-T cell-nsp4-392-400
-T cell-ORF3a-57-65
-T cell-S-8-16
-T cell-S-24-32
-T cell-S-69-77
-T cell-S-78-86
-T cell-S-79-92
-T cell-S-142-150
-T cell-S-144-152
-T cell-S-151-160
-T cell-S-208-216
-T cell-S-409-417
-T cell-S-444-453
-T cell-S-445-453
-T cell-S-448-456
-T cell-S-449-457
-T cell-S-495-503
-T cell-S-612-620
-T cell-S-653-660
-T cell-S-677-685
-T cell-S-680-687
-T cell-S-695-707
-T cell-S-699-707
-T cell-S-710-718
-T cell-S-712-720
-T cell-S-714-722
-T cell-S-975-983
-T cell-S-1019-1028
-T cell-S-1173-1181
+B cell-Membrane-1-24--01
+B cell-Membrane-132-151--02
+B cell-Nucleocapsid-42-62--03
+B cell-Nucleocapsid-153-172--04
+B cell-Nucleocapsid-355-401--05
+B cell-Spike-287-317--06
+B cell-Spike-524-598--07
+B cell-Spike-601-640--08
+B cell-Spike-802-819--09
+B cell-Spike-888-909--10
+T cell (class I)-Membrane-61-70-A*02:01-01
+T cell (class I)-Membrane-89-97-A*02:01-02
+T cell (class I)-Membrane-148-156-Class I-03
+T cell (class I)-Nucleocapsid-138-146-A*02:01-04
+T cell (class I)-Nucleocapsid-159-167-A*02:01-05
+T cell (class I)-Nucleocapsid-215-224-B*40:01-06
+T cell (class I)-Nucleocapsid-219-227-A*02:01-07
+T cell (class I)-Nucleocapsid-222-230-A*02:01-08
+T cell (class I)-Nucleocapsid-226-234-A*02:01-09
+T cell (class I)-Nucleocapsid-265-274-Class I-10
+T cell (class I)-Nucleocapsid-316-324-A*02:01-11
+T cell (class I)-Nucleocapsid-322-331-B*40:01-12
+T cell (class I)-Nucleocapsid-345-353-A*24:02-13
+T cell (class I)-ORF1ab-2139-2147-A*02:01-14
+T cell (class I)-ORF1ab-2292-2300-A*02:01-15
+T cell (class I)-ORF1ab-2498-2506-A*02:01-16
+T cell (class I)-ORF1ab-2840-2848-A*02:01-17
+T cell (class I)-ORF1ab-2942-2950-A*02:01-18
+T cell (class I)-ORF1ab-3639-3647-A*02:01-19
+T cell (class I)-ORF1ab-3661-3669-A*02:01-20
+T cell (class I)-ORF3a-6-20-B*58:01-21
+T cell (class I)-ORF3a-12-20-B*58:01-22
+T cell (class I)-Spike-424-433-A*02:01-23
+T cell (class I)-Spike-691-699-A*02:01-24
+T cell (class I)-Spike-958-966-A*02:01-25
+T cell (class I)-Spike-976-984-A*02:01-26
+T cell (class I)-Spike-996-1004-A*02:01-27
+T cell (class I)-Spike-1185-1193-A*02:01-28
+T cell (class I)-Spike-1192-1200-A*02:01-29
+T cell (class I)-Spike-1220-1228-A*02:01-30
+T cell (class II)-Spike-101-118-DRB1*04:01-01
+T cell (class II)-Spike-166-178-DRB1*04:01-02
+T cell (class II)-Spike-173-185-DRB1*04:01-03
+T cell (class II)-Spike-236-258-DRB1*04:01-04
+T cell (class II)-Spike-304-321-DRB1*04:01 | DRB1*07:01-05
+T cell (class II)-Spike-371-387-DRB1*07:01 | DR8-06
+T cell (class II)-Spike-440-457-Class II-07
+T cell (class II)-Spike-451-468-DRB1*04:01-08
+T cell (class II)-Spike-462-474-DRB1*04:01-09
+T cell (class II)-Spike-690-707-DRB1*04:01 | DRB1*07:01-10
+T cell (class II)-Spike-747-763-DR8-11
+T cell (class II)-Spike-785-802-DRB1*04:01-12
+T cell (class II)-Spike-936-952-DRB1*04:01-13
+T cell (class II)-Spike-1011-1028-DRB1*04:01-14
+T cell (class II)-Spike-1101-1115-DRB1*04:01-15
