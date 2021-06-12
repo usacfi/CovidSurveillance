@@ -869,22 +869,25 @@ def plot_variants(meta_df):
     region_id = groupby.index[i][1]
     regional_df[lineage][region_id] = groupby['Accession ID'][i]
   
-  # Variants of Concern and Variants under investigation 
-  voc_vui = [ 'B.1.1.7',    # VOC Alpha B.1.1.7 UK
-              'B.1.351',    # VOC Beta B.1.351 South Africa
-              'B.1.429',    # VUI Epsilon B.1.427+B.1.429 USA/California
-              'B.1.427',    # VUI Epsilon B.1.427+B.1.429 USA/California
-              'P.1',        # VOC Gamma P.1 Brazil
-              'B.1.526', 
-              'B.1.525',    # VUI Eta B.1.525 UK/Nigeria
-              'P.2', 
-              'P.3', 
-              'B.1.617']    # VUI Delta B.1.617+ India
+  # Variants of Concern and Variants of Interest 
+  voc_voi = {   
+                'B.1.1.7'  : 'VOC Alpha B.1.1.7 UK',
+                'B.1.351'  : 'VOC Beta B.1.351 South Africa',
+                'P.1'      : 'VOC Gamma P.1 Brazil',
+                'B.1.617.2': 'VOC Delta B.1.617.2 India',
+                'B.1.427'  : 'VOI Epsilon B.1.427 USA',
+                'B.1.429'  : 'VOI Epsilon B.1.429 USA',
+                'P.2'      : 'VOI Zeta P.2 Zeta',
+                'B.1.525'  : 'VOI Eta B.1.526 UK/Nigeria',
+                'P.3'      : 'VOI Theta P.3 Philippines',
+                'B.1.526'  : 'VOI Iota B.1.526 USA',
+                'B.1.617.1': 'VOI Kappa B.1.617.1 India',
+            }          
   
   data = []  
   for lineage in lineages:
-    if lineage in voc_vui:
-      data.append(go.Bar(name=lineage, x=regional_df.region, y=regional_df[lineage]))
+    if lineage in voc_voi.keys():
+      data.append(go.Bar(name=voc_voi[lineage], x=regional_df.region, y=regional_df[lineage]))
 
   fig = go.Figure(data=data)
 
