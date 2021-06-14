@@ -825,14 +825,16 @@ def extract_region(meta_df):
 
   
   
-def plot_variants(meta_df):
-  '''Creates a bar chart of the count of variants per region'''
+def plot_variants(meta_DF):
+  '''Creates a bar chart and a geographical map of the variants per region'''
   
   # Create a Regions column in the meta data dataframe
-  meta_df['Region_id'] = meta_df['Location'].apply(extract_region)
-  meta_df = meta_df[~meta_df['Region_id'].isna()]
+  meta_DF['Region_id'] = meta_DF['Location'].apply(extract_region)
+  meta_df = meta_DF[~meta_DF['Region_id'].isna()]
   meta_df['Region_id'] = meta_df['Region_id'].astype(int)
-
+  meta_df = meta_df.sort_values(by='Collection date', ascending=False)
+  meta_df.reset_index(drop=True, inplace=True)
+  
   # Variants of Concern and Variants of Interest 
   voc_voi = {   
                 'B.1.1.7'  : 'VOC Alpha B.1.1.7 UK',
@@ -841,21 +843,21 @@ def plot_variants(meta_df):
                 'B.1.617.2': 'VOC Delta B.1.617.2 India',
                 'B.1.427'  : 'VOI Epsilon B.1.427 USA',
                 'B.1.429'  : 'VOI Epsilon B.1.429 USA',
-                'P.2'      : 'VOI Zeta P.2 Zeta',
+                'P.2'      : 'VOI Zeta P.2 Brazil',
                 'B.1.525'  : 'VOI Eta B.1.526 UK/Nigeria',
                 'P.3'      : 'VOI Theta P.3 Philippines',
                 'B.1.526'  : 'VOI Iota B.1.526 USA',
                 'B.1.617.1': 'VOI Kappa B.1.617.1 India',
             }
 
-  lineages = meta_df['Lineage'].unique()
-  lineages = list(set(lineages).intersection(voc_voi.keys()))
+  lineages_all = meta_df['Lineage'].unique()
+  lineages = list(set(lineages_all).intersection(voc_voi.keys()))
+  lineages.sort()
 
   ph_regions = [  'NCR', 'CAR', 'Region I', 'Region II', 'Region III', 
                   'Region IV-A', 'Region IV-B', 'Region V', 'Region VI', 'Region VII', 
                   'Region VIII', 'Region IX', 'Region X', 'Region XI', 'Region XII', 
                   'Caraga', 'BARMM']
-
 
   ph_regions_latitude = [ 14.5472655, 17.35971005, 15.855663, 16.7305959, 15.5, 
                           14.16052895, 13.072377, 13.42289175, 11, 10.6419531, 
@@ -866,12 +868,9 @@ def plot_variants(meta_df):
                          121.24256648, 121.3276166, 123.41103829, 122.58101501, 123.938142,
                          125,  123.4243754, 124.65677618, 125.580953, 124.9860759,
                          125.85578189, 120.02840346] 
-             
+           
   latitude = ph_regions_latitude
   longitude = ph_regions_longitude             
-
-
-  
   regional_df = pd.DataFrame({'region':ph_regions,
                               'longitude':longitude,
                               'latitude':latitude})
@@ -892,34 +891,43 @@ def plot_variants(meta_df):
 
   i = 0
   bar_data = [] 
-  colors = ['red','blue','green','orange','brown','violet','yellow','grey','teal','lightgreen','black'] 
+  colors = ['red','blue','green','lightblue','magenta','yellow','grey','teal','lightgreen','silver','black'] 
     
-  for lineage in lineages:
-    
-    fig.add_trace(go.Bar( 
-      name = voc_voi[lineage], 
-      x = regional_df.region, 
-      y = regional_df[lineage], 
-      marker_color = colors[i]),
-      row=1, col=2)
-    
+  for lineage in lineages:    
     fig.add_trace(go.Scattergeo(
       lon = regional_df.longitude,
       lat = regional_df.latitude,
       text = regional_df.region, 
       name = voc_voi[lineage], 
-      showlegend=False,
+      showlegend = False,
+      customdata = regional_df[lineage],
+      hovertemplate = 'Area: %{text}<br>'
+                      'Occurence: %{customdata}',
+      legendgroup = 'group{}'.format(i),
       marker = dict(
-        size = regional_df[lineage]/5,
+        size = regional_df[lineage]*50/322+2,
         color = colors[i], 
         line_width = 0,
         opacity  = 0.5,
       )),
       row=1, col=1)
+      
+    fig.add_trace(go.Bar( 
+      name = voc_voi[lineage], 
+      x = regional_df.region, 
+      y = regional_df[lineage], 
+      legendgroup = 'group{}'.format(i),
+      marker_color = colors[i]),
+      row=1, col=2)
+      
     i = i + 1    
 
-  fig.update_layout(title='Sars-Cov-2 Variants | {} '.format(meta_df['Location'][0].split('/')[1].rstrip().lstrip()), 
-                    barmode='stack',
+  
+  fig.update_layout(title = 'Sars-Cov-2 Variants per Region | {} | {} to {} | {} GISAID Sequences'.format(meta_df['Location'][0].split('/')[1].rstrip().lstrip(),
+                          meta_df['Collection date'][len(meta_df)-1],
+                          meta_df['Collection date'][0],
+                          len(meta_DF)),
+                    barmode = 'stack',
                     geo_resolution = 50,
                     geo_scope = 'asia',
                     geo_showframe = True,
@@ -928,8 +936,15 @@ def plot_variants(meta_df):
                     geo_countrycolor = "black" ,
                     geo_coastlinecolor = "black",
                     geo_projection_type = 'mercator',
-                    geo_lonaxis_range= [ 115.0, 130.0 ],
-                    geo_lataxis_range= [ 5.0, 20.0 ],
+                    geo_lonaxis_range = [ 117.0, 127.0 ],
+                    geo_lataxis_range = [ 5.0, 20.0 ],
+                    legend = dict(
+                        yanchor = "top",
+                        y = 0.99,
+                        xanchor = "left",
+                        x = 0.8
+                    ),
+                    legend_title_text = 'Variants',
                     )
                             
   fig['layout']['yaxis']['title']='Count'
