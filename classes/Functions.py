@@ -602,6 +602,7 @@ def epi_region(epitopes, epitope, protein, df):
 
 
 
+
 def plot_mutations(fasta_DF, meta_DF, epitopes, proteins):
   ''' Creates a Plotly heatmap of the mutations '''
 
@@ -731,7 +732,7 @@ def plot_mutations(fasta_DF, meta_DF, epitopes, proteins):
       fig.update_xaxes(title_text="Site", rangeslider_thickness = 0.025)
       fig.update_yaxes(title_text="Accession ID") 
       fig['layout']['yaxis']['autorange'] = "reversed"
-      fig.write_html("output/07_mutation_profile_{}_{}.html".format(fasta_df['name'][3],batch))         
+      fig.write_html("output/08_mutations/mutation_profile_{}_{}.html".format(fasta_df['name'][3],batch))         
 
       # Count of epitope radical hits
       bcell_rhits = np.zeros([len(bcell_id)], dtype='int')
@@ -753,7 +754,6 @@ def plot_mutations(fasta_DF, meta_DF, epitopes, proteins):
                                 'epitope_r_mutations':bcell_rhits + tcell1_rhits + tcell2_rhits})
   
       summary_table(table_df, fasta_df, meta_df, batch)
-
 
 
 
@@ -792,7 +792,7 @@ def summary_table(table_df, fasta_df, meta_df, batch):
                     meta_df['Collection date'][4]),
                     )
   
-  table_plot.write_html('output/08_table_{}_{}.html'.format(fasta_df['name'][3],batch))
+  table_plot.write_html('output/09_tables/table_{}_{}.html'.format(fasta_df['name'][3],batch))
 
   
 
@@ -834,7 +834,9 @@ def plot_variants(meta_DF):
   meta_df['Region_id'] = meta_df['Region_id'].astype(int)
   meta_df = meta_df.sort_values(by='Collection date', ascending=False)
   meta_df.reset_index(drop=True, inplace=True)
-  
+  meta_df['Collection date'] = meta_df['Collection date'].astype('datetime64')
+  meta_df['Collection date'] = meta_df['Collection date'].dt.date
+
   # Variants of Concern and Variants of Interest 
   voc_voi = {   
                 'B.1.1.7'  : 'VOC Alpha B.1.1.7 UK',
@@ -848,11 +850,13 @@ def plot_variants(meta_DF):
                 'P.3'      : 'VOI Theta P.3 Philippines',
                 'B.1.526'  : 'VOI Iota B.1.526 USA',
                 'B.1.617.1': 'VOI Kappa B.1.617.1 India',
+                'Others'   : 'Others'
             }
 
   lineages_all = meta_df['Lineage'].unique()
   lineages = list(set(lineages_all).intersection(voc_voi.keys()))
   lineages.sort()
+  meta_df = meta_df.replace(list(set(lineages_all).difference(lineages)), 'Others')
 
   ph_regions = [  'NCR', 'CAR', 'Region I', 'Region II', 'Region III', 
                   'Region IV-A', 'Region IV-B', 'Region V', 'Region VI', 'Region VII', 
@@ -868,7 +872,7 @@ def plot_variants(meta_DF):
                          121.24256648, 121.3276166, 123.41103829, 122.58101501, 123.938142,
                          125,  123.4243754, 124.65677618, 125.580953, 124.9860759,
                          125.85578189, 120.02840346] 
-           
+         
   latitude = ph_regions_latitude
   longitude = ph_regions_longitude             
   regional_df = pd.DataFrame({'region':ph_regions,
@@ -876,23 +880,26 @@ def plot_variants(meta_DF):
                               'latitude':latitude})
 
   # Insert empty columns of unique lineages                            
-  regional_df = regional_df.join(pd.DataFrame(0, index=range(len(regional_df)), columns=lineages))
+  regional_df = regional_df.join(pd.DataFrame(0, index=range(len(regional_df)), columns=lineages_all))
+  regional_df['Others'] = 0
   # Calculate the count per lineage per region
   groupby = pd.DataFrame(meta_df.groupby(['Lineage', 'Region_id'])['Accession ID'].count())
   # Insert the resulting counts into the regional_df
   for i in range(len(groupby)):
     lineage = groupby.index[i][0]
-    if lineage in lineages:
-      region_id = groupby.index[i][1]
-      regional_df[lineage][region_id] = groupby['Accession ID'][i]
+    region_id = groupby.index[i][1]
+    regional_df[lineage][region_id] = groupby['Accession ID'][i]
+
+  regional_df = regional_df[['region','longitude','latitude','Others']].join(regional_df[lineages])
 
   fig = make_subplots(rows=1, cols=2, 
                       specs=[[{'type':'scattergeo'}, {'type':'xy'}]])
 
   i = 0
   bar_data = [] 
-  colors = ['red','blue','green','lightblue','magenta','yellow','grey','teal','lightgreen','silver','black'] 
-    
+  colors = ['red','blue','green','lightblue','magenta','grey','yellow','teal','lightgreen','silver','black'] 
+  lineages.append('Others') 
+   
   for lineage in lineages:    
     fig.add_trace(go.Scattergeo(
       lon = regional_df.longitude,
@@ -920,9 +927,10 @@ def plot_variants(meta_DF):
       marker_color = colors[i]),
       row=1, col=2)
       
+    meta_df = meta_df.replace(lineage, voc_voi[lineage])
     i = i + 1    
 
-  
+  meta_df = meta_df.rename(columns={'Lineage':'Variant'})
   fig.update_layout(title = 'Sars-Cov-2 Variants per Region | {} | {} to {} | {} GISAID Sequences'.format(meta_df['Location'][0].split('/')[1].rstrip().lstrip(),
                           meta_df['Collection date'][len(meta_df)-1],
                           meta_df['Collection date'][0],
@@ -948,8 +956,47 @@ def plot_variants(meta_DF):
                     )
                             
   fig['layout']['yaxis']['title']='Count'
-  fig.write_html('output/09_variants_per_region.html') 
+  fig.write_html('output/10_geoplot_variants.html') 
+  
+  variants_per_region(meta_df, ph_regions)
   
   
+  
+def variants_per_region(meta_df, regions):
+  '''Create an area plot of the variants over time for each region'''
+  
+  plt.style.use('seaborn')
+  groupby = meta_df[[ 'Variant',
+                      'Collection date',
+                      'Region_id',
+                      'Accession ID']].groupby(by=[ 'Collection date',
+                                                    'Variant',
+                                                    'Region_id'], as_index=False).count()  
+
+  maxcount = 50
+  i = 0                                                  
+  for region in regions:
+    reg = groupby[groupby['Region_id']==i] 
+    if len(reg) > 0:
+      reg_pivot = reg.pivot(index=reg['Collection date'], columns='Variant')['Accession ID']
+    else:  
+      reg_pivot = pd.DataFrame({'Collection date':['2020-10-30','2021-01-30','2021-03-30'],'No data':[0,0,0]})
+      reg_pivot['Collection date'] = reg_pivot['Collection date'].astype('datetime64')
+      reg_pivot['Collection date'] = reg_pivot['Collection date'].dt.date
+    reg_pivot.plot.area()
+    plt.xlabel('Collection date', fontsize=15)
+    plt.ylabel('Count', fontsize=15)
+    plt.title('{}'.format(region),fontsize=17)
+  
+    ax = plt.gca()
+    handles, labels = ax.get_legend_handles_labels()
+    labels, handles = zip(*sorted(zip(labels, handles), key=lambda t: t[0], reverse=True))
+    ax.legend(handles, labels)
+    plt.ylim(0,maxcount)
+    t = [meta_df['Collection date'].min(), meta_df['Collection date'].max()]
+    plt.xticks(t,t)
+    plt.savefig('output/11_regions/{}_{}.png'.format(i,region)) #dpi = 1200
+    i = i + 1
+    
   
   
