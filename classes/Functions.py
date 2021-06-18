@@ -2,6 +2,7 @@ from classes.Sequence import Sequence
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import seaborn as sns
@@ -850,6 +851,7 @@ def plot_variants(meta_DF):
                 'P.3'      : 'VOI Theta P.3 Philippines',
                 'B.1.526'  : 'VOI Iota B.1.526 USA',
                 'B.1.617.1': 'VOI Kappa B.1.617.1 India',
+                'C.37'     : 'VOI Lambda C.37 Peru',
                 'Others'   : 'Others'
             }
 
@@ -897,7 +899,7 @@ def plot_variants(meta_DF):
 
   i = 0
   bar_data = [] 
-  colors = ['red','blue','green','lightblue','magenta','grey','yellow','teal','lightgreen','silver','black'] 
+  colors = ['red','blue','green','lightblue','magenta','yellow','lightgreen','gold','royalblue','maroon','whitesmoke'] 
   lineages.append('Others') 
    
   for lineage in lineages:    
@@ -958,11 +960,11 @@ def plot_variants(meta_DF):
   fig['layout']['yaxis']['title']='Count'
   fig.write_html('output/10_geoplot_variants.html') 
   
-  variants_per_region(meta_df, ph_regions)
+  variants_per_region(meta_df, ph_regions, colors)
   
   
   
-def variants_per_region(meta_df, regions):
+def variants_per_region(meta_df, regions, colors):
   '''Create an area plot of the variants over time for each region'''
   
   plt.style.use('seaborn')
@@ -972,29 +974,64 @@ def variants_per_region(meta_df, regions):
                       'Accession ID']].groupby(by=[ 'Collection date',
                                                     'Variant',
                                                     'Region_id'], as_index=False).count()  
-
-  maxcount = 50
+                                                 
   i = 0                                                  
   for region in regions:
     reg = groupby[groupby['Region_id']==i] 
+    
+    # If there's data
     if len(reg) > 0:
       reg_pivot = reg.pivot(index=reg['Collection date'], columns='Variant')['Accession ID']
+      reg_pivot = reg_pivot.replace(np.nan, 0)
+      total_df = reg_pivot.sum(axis=1)
+      # Normalize the occurences
+      for variant in reg_pivot.columns:
+        reg_pivot[variant] = reg_pivot[variant]/total_df
+        
+        
+      # Put the 'Others' column at the end
+      cols = reg_pivot.columns.tolist()
+      cols.sort(reverse=True)
+      reg_pivot = reg_pivot[cols]
+      
+  
+      # Smoothen curves
+      df = pd.DataFrame()
+      new_index = np.arange((reg_pivot.index[-1] - reg_pivot.index[0]).days + 1)
+      date_index = pd.date_range(start = reg_pivot.index[0], 
+                      end = reg_pivot.index[-1],freq='D').date
+
+      for variant in reg_pivot.columns:
+        func = interp1d((reg_pivot.index - reg_pivot.index[0]).days, reg_pivot[variant], kind='cubic')
+        df[variant] = func(new_index)
+      
+      df[df < 0] = 0     
+      df.index = date_index
+      reg_pivot = df
+
+      
+    # If no data  
     else:  
-      reg_pivot = pd.DataFrame({'Collection date':['2020-10-30','2021-01-30','2021-03-30'],'No data':[0,0,0]})
+      reg_pivot = pd.DataFrame({'Collection date':['2020-10','2021-01','2021-03'],'No data':[0,0,0]})
       reg_pivot['Collection date'] = reg_pivot['Collection date'].astype('datetime64')
       reg_pivot['Collection date'] = reg_pivot['Collection date'].dt.date
-    reg_pivot.plot.area()
-    plt.xlabel('Collection date', fontsize=15)
-    plt.ylabel('Count', fontsize=15)
-    plt.title('{}'.format(region),fontsize=17)
-  
+
+    reg_pivot.plot(kind = 'area', 
+                  colors = colors[len(colors)-len(reg_pivot.columns):])
+                    
     ax = plt.gca()
     handles, labels = ax.get_legend_handles_labels()
-    labels, handles = zip(*sorted(zip(labels, handles), key=lambda t: t[0], reverse=True))
+    labels, handles = zip(*sorted(zip(labels, handles), 
+                                  key=lambda t: t[0], 
+                                  reverse=True))
     ax.legend(handles, labels)
-    plt.ylim(0,maxcount)
-    t = [meta_df['Collection date'].min(), meta_df['Collection date'].max()]
-    plt.xticks(t,t)
+    plt.ylim(0,1)
+    plt.xlim(meta_df['Collection date'].min(), meta_df['Collection date'].max())
+    plt.xlabel('Collection date')
+    plt.legend(loc = 'upper left') 
+    plt.title('{}'.format(region), 
+                    fontsize=17, 
+                    fontstyle='oblique') 
     plt.savefig('output/11_regions/{}_{}.png'.format(i,region)) #dpi = 1200
     i = i + 1
     
