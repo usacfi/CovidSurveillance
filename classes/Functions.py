@@ -802,23 +802,23 @@ def extract_region(meta_df):
     region = meta_df.split('/')[2].lstrip().rstrip()
     
     # Enumerate all possible names of the regions
-    ph_regions_dict = { 0  : ['NCR', 'Manila', 'National Capital Region'], 
+    ph_regions_dict = { 0  : ['NCR', 'Manila', 'National Capital Region','Manila City','Navotas City','Pasay City','Quezon City','Taguig City','Caloocan City'], 
                         1  : ['CAR', 'Cordillera Administrative Region'],
-                        2  : ['Region I', 'Ilocos Region'],
+                        2  : ['Region I', 'Ilocos Region','Ilocos'],
                         3  : ['Region II','Cagayan Valley'],
                         4  : ['Region III', 'Central Luzon'],
                         5  : ['Region IV-A', 'Calabarzon'],
                         6  : ['Region IV-B', 'Mimaropa'],
-                        7  : ['Region V', 'Bicol Region'],
+                        7  : ['Region V', 'Bicol Region','Bicol'],
                         8  : ['Region VI', 'Western Visayas'],
                         9  : ['Region VII', 'Central Visayas'],
                         10 : ['Region VIII', 'Eastern Visayas'],
-                        11 : ['Region IX','Zamboanga Peninsula'],
+                        11 : ['Region IX','Zamboanga Peninsula','Zamboanga'],
                         12 : ['Region X','Northern Mindanao'],
-                        13 : ['Region XI','Davao Region'],
-                        14 : ['Region XII', 'SOCCKSARGEN'],
+                        13 : ['Region XI','Davao Region','Davao'],
+                        14 : ['Region XII', 'SOCCKSARGEN', 'Soccksargen'],
                         15 : ['Caraga', 'Davao Oriental'],
-                        16 : ['BARMM', 'ARMM']}
+                        16 : ['BARMM', 'ARMM','Bangsamoro Autonomous Region in Muslim Mindanao']}
     
     for key,value in ph_regions_dict.items():
       if region in value:
@@ -836,7 +836,7 @@ def plot_variants(meta_DF):
   meta_df = meta_df.sort_values(by='Collection date', ascending=False)
   meta_df.reset_index(drop=True, inplace=True)
   meta_df['Collection date'] = meta_df['Collection date'].astype('datetime64')
-  meta_df['Collection date'] = meta_df['Collection date'].dt.date
+  meta_df['Collection date'] = meta_df['Collection date'].dt.to_period('W').dt.start_time # per week
 
   # Variants of Concern and Variants of Interest 
   voc_voi = {   
@@ -974,7 +974,7 @@ def variants_per_region(meta_df, regions, colors):
                       'Accession ID']].groupby(by=[ 'Collection date',
                                                     'Variant',
                                                     'Region_id'], as_index=False).count()  
-                                                 
+                                               
   i = 0                                                  
   for region in regions:
     reg = groupby[groupby['Region_id']==i] 
@@ -994,23 +994,24 @@ def variants_per_region(meta_df, regions, colors):
       cols.sort(reverse=True)
       reg_pivot = reg_pivot[cols]
       
-  
-      # Smoothen curves
-      df = pd.DataFrame()
-      new_index = np.arange((reg_pivot.index[-1] - reg_pivot.index[0]).days + 1)
-      date_index = pd.date_range(start = reg_pivot.index[0], 
-                      end = reg_pivot.index[-1],freq='D').date
+      if len(reg) > 3:
+        # Smoothen curves
+        df = pd.DataFrame()
+        new_index = np.arange((reg_pivot.index[-1] - reg_pivot.index[0]).days + 1)
+        date_index = pd.date_range(start = reg_pivot.index[0], 
+                        end = reg_pivot.index[-1],freq='D').date
 
-      for variant in reg_pivot.columns:
-        func = interp1d((reg_pivot.index - reg_pivot.index[0]).days, reg_pivot[variant], kind='cubic')
-        df[variant] = func(new_index)
-      
-      df[df < 0] = 0     
-      df.index = date_index
-      reg_pivot = df
+
+        for variant in reg_pivot.columns:
+          func = interp1d((reg_pivot.index - reg_pivot.index[0]).days, reg_pivot[variant], kind='cubic')
+          df[variant] = func(new_index)
+    
+        df[df < 0] = 0     
+        df.index = date_index
+        reg_pivot = df
 
       
-    # If no data  
+    # If there's no data  
     else:  
       reg_pivot = pd.DataFrame({'Collection date':['2020-10','2021-01','2021-03'],'No data':[0,0,0]})
       reg_pivot['Collection date'] = reg_pivot['Collection date'].astype('datetime64')
@@ -1032,7 +1033,7 @@ def variants_per_region(meta_df, regions, colors):
     plt.title('{}'.format(region), 
                     fontsize=17, 
                     fontstyle='oblique') 
-    plt.savefig('output/11_regions/{}_{}.png'.format(i,region)) #dpi = 1200
+    plt.savefig('output/11_regions/{}_{}b.png'.format(i,region)) #dpi = 1200
     i = i + 1
     
   
