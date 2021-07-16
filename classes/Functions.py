@@ -825,6 +825,34 @@ def extract_region(meta_df):
         return key     
 
   
+
+def colors_func(variants):
+  mydict = {
+              'maroon':     ['B.1.1.7','VOC Alpha B.1.1.7 UK'],
+              'royalblue':  ['B.1.351','B.1.351.2','B.1.351.3','VOC Beta B.1.351 South Africa'],
+              'lightgreen': ['P.1','VOC Gamma P.1 Brazil'],
+              'gold':       ['B.1.617.2','VOC Delta AY/B.1.617.2 India'],
+              #'red':        ['B.1.427','VOI Epsilon B.1.427 USA'],
+              #'blue':       ['B.1.429','VOI Epsilon B.1.429 USA'],
+              #'orange':     ['P.2','VOI Zeta P.2 Brazil'],
+              'yellow':     ['B.1.525','VOI Eta B.1.526 UK/Nigeria'],
+              #'magenta':    ['P.3','VOI Theta P.3 Philippines'],
+              'brown':      ['B.1.526','VOI Iota B.1.526 USA'],
+              'green':      ['B.1.617.1','VOI Kappa B.1.617.1 India'],
+              'lightblue':  ['C.37','VOI Lambda C.37 Peru'],
+              'whitesmoke': ['Others'],
+            }  
+  
+  colors = []
+  for variant in variants:
+    for key,value in mydict.items():
+      if variant in value:
+        colors.append(key)
+        break
+  
+  #print(f'{variants} {colors}\n')      
+  return colors      
+  
   
 def plot_variants(meta_DF):
   '''Creates a bar chart and a geographical map of the variants per region'''
@@ -838,17 +866,30 @@ def plot_variants(meta_DF):
   meta_df['Collection date'] = meta_df['Collection date'].astype('datetime64')
   meta_df['Collection date'] = meta_df['Collection date'].dt.to_period('W').dt.start_time # per week
 
+  meta_df['Lineage'].replace(['B.1.351.2',
+                            'B.1.351.3',
+                            'P.1.1',  
+                            'P.1.2',
+                            'AY.1',
+                            'AY.2'],
+                            ['VOC Beta B.1.351 South Africa',
+                            'VOC Beta B.1.351 South Africa',
+                            'VOC Gamma P.1 Brazil',
+                            'VOC Gamma P.1 Brazil',
+                            'VOC Delta AY/B.1.617.2 India',
+                            'VOC Delta AY/B.1.617.2 India'], inplace=True)
+
   # Variants of Concern and Variants of Interest 
   voc_voi = {   
                 'B.1.1.7'  : 'VOC Alpha B.1.1.7 UK',
                 'B.1.351'  : 'VOC Beta B.1.351 South Africa',
                 'P.1'      : 'VOC Gamma P.1 Brazil',
-                'B.1.617.2': 'VOC Delta B.1.617.2 India',
-                'B.1.427'  : 'VOI Epsilon B.1.427 USA',
-                'B.1.429'  : 'VOI Epsilon B.1.429 USA',
-                'P.2'      : 'VOI Zeta P.2 Brazil',
+                'B.1.617.2': 'VOC Delta AY/B.1.617.2 India',
+                #'B.1.427'  : 'VOI Epsilon B.1.427 USA', reclassified
+                #'B.1.429'  : 'VOI Epsilon B.1.429 USA', reclassified
+                #'P.2'      : 'VOI Zeta P.2 Brazil', reclassified
                 'B.1.525'  : 'VOI Eta B.1.526 UK/Nigeria',
-                'P.3'      : 'VOI Theta P.3 Philippines',
+                #'P.3'      : 'VOI Theta P.3 Philippines', reclassified
                 'B.1.526'  : 'VOI Iota B.1.526 USA',
                 'B.1.617.1': 'VOI Kappa B.1.617.1 India',
                 'C.37'     : 'VOI Lambda C.37 Peru',
@@ -898,11 +939,22 @@ def plot_variants(meta_DF):
                       specs=[[{'type':'scattergeo'}, {'type':'xy'}]])
 
   i = 0
-  bar_data = [] 
-  colors = ['red','blue','green','lightblue','magenta','yellow','lightgreen','gold','royalblue','maroon','whitesmoke'] 
   lineages.append('Others') 
-   
+  colors = colors_func(lineages)
   for lineage in lineages:    
+    fig.add_trace(go.Bar( 
+      name = voc_voi[lineage], 
+      x = regional_df.region, 
+      y = regional_df[lineage], 
+      legendgroup = f'group{i}',
+      marker_color = colors[i]),
+      row=1, col=2)      
+    meta_df = meta_df.replace(lineage, voc_voi[lineage])
+    i = i + 1    
+
+  i = len(lineages) - 1
+  lineages.reverse()
+  for lineage in lineages:
     fig.add_trace(go.Scattergeo(
       lon = regional_df.longitude,
       lat = regional_df.latitude,
@@ -912,30 +964,20 @@ def plot_variants(meta_DF):
       customdata = regional_df[lineage],
       hovertemplate = 'Area: %{text}<br>'
                       'Occurence: %{customdata}',
-      legendgroup = 'group{}'.format(i),
+      legendgroup = f'group{i}',
       marker = dict(
-        size = regional_df[lineage]*50/322+2,
+        size = regional_df[lineage]/10+2,
         color = colors[i], 
         line_width = 0,
         opacity  = 0.5,
       )),
       row=1, col=1)
-      
-    fig.add_trace(go.Bar( 
-      name = voc_voi[lineage], 
-      x = regional_df.region, 
-      y = regional_df[lineage], 
-      legendgroup = 'group{}'.format(i),
-      marker_color = colors[i]),
-      row=1, col=2)
-      
-    meta_df = meta_df.replace(lineage, voc_voi[lineage])
-    i = i + 1    
+    i = i - 1 
 
   meta_df = meta_df.rename(columns={'Lineage':'Variant'})
   fig.update_layout(title = 'Sars-Cov-2 Variants per Region | {} | {} to {} | {} GISAID Sequences'.format(meta_df['Location'][0].split('/')[1].rstrip().lstrip(),
-                          meta_df['Collection date'][len(meta_df)-1],
-                          meta_df['Collection date'][0],
+                          meta_df['Collection date'][len(meta_df)-1].date(),
+                          meta_df['Collection date'][0].date(),
                           len(meta_DF)),
                     barmode = 'stack',
                     geo_resolution = 50,
@@ -960,11 +1002,11 @@ def plot_variants(meta_DF):
   fig['layout']['yaxis']['title']='Count'
   fig.write_html('output/10_geoplot_variants.html') 
   
-  variants_per_region(meta_df, ph_regions, colors)
+  variants_per_region(meta_df, ph_regions)
   
   
   
-def variants_per_region(meta_df, regions, colors):
+def variants_per_region(meta_df, regions):
   '''Create an area plot of the variants over time for each region'''
   
   plt.style.use('seaborn')
@@ -974,10 +1016,12 @@ def variants_per_region(meta_df, regions, colors):
                       'Accession ID']].groupby(by=[ 'Collection date',
                                                     'Variant',
                                                     'Region_id'], as_index=False).count()  
-                                               
+  
+  countmax = groupby.groupby(by=['Collection date','Region_id'])['Accession ID'].sum().max()                                           
   i = 0                                                  
   for region in regions:
     reg = groupby[groupby['Region_id']==i] 
+    
     
     # If there's data
     if len(reg) > 0:
@@ -985,8 +1029,9 @@ def variants_per_region(meta_df, regions, colors):
       reg_pivot = reg_pivot.replace(np.nan, 0)
       total_df = reg_pivot.sum(axis=1)
       # Normalize the occurences
-      for variant in reg_pivot.columns:
-        reg_pivot[variant] = reg_pivot[variant]/total_df
+      #countmax = 1
+      #for variant in reg_pivot.columns:
+      #  reg_pivot[variant] = reg_pivot[variant]/total_df
         
         
       # Put the 'Others' column at the end
@@ -1010,6 +1055,10 @@ def variants_per_region(meta_df, regions, colors):
         df.index = date_index
         reg_pivot = df
 
+      reg_pivot.plot(kind = 'area', 
+                    rot = 0,
+                    colors = colors_func(reg_pivot.columns))
+
       
     # If there's no data  
     else:  
@@ -1017,8 +1066,10 @@ def variants_per_region(meta_df, regions, colors):
       reg_pivot['Collection date'] = reg_pivot['Collection date'].astype('datetime64')
       reg_pivot['Collection date'] = reg_pivot['Collection date'].dt.date
 
-    reg_pivot.plot(kind = 'area', 
-                  colors = colors[len(colors)-len(reg_pivot.columns):])
+    
+      reg_pivot.plot(kind = 'area', 
+                  rot = 0,
+                  colors = 'black')
                     
     ax = plt.gca()
     handles, labels = ax.get_legend_handles_labels()
@@ -1026,14 +1077,15 @@ def variants_per_region(meta_df, regions, colors):
                                   key=lambda t: t[0], 
                                   reverse=True))
     ax.legend(handles, labels)
-    plt.ylim(0,1)
+    plt.ylim(0, countmax)
     plt.xlim(meta_df['Collection date'].min(), meta_df['Collection date'].max())
     plt.xlabel('Collection date')
+    #plt.ylabel('Count')
     plt.legend(loc = 'upper left') 
     plt.title('{}'.format(region), 
-                    fontsize=17, 
-                    fontstyle='oblique') 
-    plt.savefig('output/11_regions/{}_{}b.png'.format(i,region)) #dpi = 1200
+                    fontsize = 17, 
+                    fontstyle = 'oblique') 
+    plt.savefig('output/11_regions/{}_{}.png'.format(i,region)) #dpi = 1200
     i = i + 1
     
   
