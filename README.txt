@@ -42,7 +42,6 @@ Output files:
  - 12_variants_in_philippines.csv
  - 12_variants_in_philippines_aggregated.csv
  - 13_filtered_seq_philippines.csv
- - 13_filtered_seq_philippines_aggregated.csv
 
 Fasta files can be viewed using any alignment viewers, e.g. AliView
 
