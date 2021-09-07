@@ -68,6 +68,7 @@ if __name__ == "__main__":
     meta_df = scv.combine_metadata(f'{args.metadata}/Epitope_Surveillance', agg_per_week=False)
     meta_df = scv.lineage_to_variant(meta_df)
     meta_df = scv.aggregate_divisions(meta_df)
+    meta_df.to_csv('output/13_filtered_seq_philippines.csv', index=False)
 
     # Search and combine all fasta files under Epitope_Surveillance
     combine_fasta_files(f'{args.input}/Epitope_Surveillance')
