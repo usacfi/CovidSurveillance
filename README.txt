@@ -4,13 +4,13 @@ Download the entire DNASeqAnalysis folder
 
 # Example commandline to run script:
 
->>> python3 main.py -i "references/Sequences/Philippines/High_Coverage_Sequences/High_Coverage_Philippines_as_of_April_27-Sequences.fasta" -m "references/Sequences/Philippines/High_Coverage_Sequences/High_Coverage_Philippines_as_of_April_27-Patient_Metadata.tsv"
+>>> python3 main.py -i "references/Sequences/Philippines"
 
-Required parameters:
- -i is the input fasta file with the reference genome and test genomes 
- -m is the input meta data file
+
 
 Optional parameters:
+ -i is the directory which contains the fasta files
+ -m is the directory which contains the metadata files
  -ref is the reference genome name (Wuhan strain) the default is the name of the first genome in the input fasta file.
  -aln TRUE when the input needs alignment and FALSE when the input is already aligned
  -eps is the input text file that lists the epitope regions
@@ -21,8 +21,8 @@ Optional parameters:
 # The program should run with Python 3.6 or later
 
 Input files: 
- - High_Coverage_Philippines_as_of_April_27-Sequences.fasta
- - High_Coverage_Philippines_as_of_April_27-Patient_Metadata.tsv
+ - sequences.fasta
+ - metadata.tsv
  - Reference_gene_locations.txt
  - NCBI Reference Sequence_NC_045512.2.fasta
  - epitopes.txt 
@@ -37,6 +37,12 @@ Output files:
  - 07_mutation_profile_[protein]_[#].html
  - 08_table_[protein]_[#].html
  - 09_mutation_geomap.html
+ - 10_geoplot_variants.html
+ - 11_regions
+ - 12_variants_in_philippines.csv
+ - 12_variants_in_philippines_aggregated.csv
+ - 13_epitopes_in_philippines.csv
+ - 13_epitopes_in_philippines_aggregated.csv
 
 Fasta files can be viewed using any alignment viewers, e.g. AliView
 
@@ -46,7 +52,7 @@ Possible run-time errors:
 Solution: You can download the MUSCLE/MAFFT programs **compatible to your OS** free online. Or you can change the input parameter (-aln FALSE), but note here that the program assumes that your input file is already aligned.
 	
 2. An error might come up when you are running in Python 2.
-Solution: install Python3 (recommended) or convert the codes into Python 2
+Solution: convert the codes into Python 2 or install Python3 (recommended)
 
 3. An error might come up when you don't have the following python modules:
  - argparse
@@ -54,9 +60,10 @@ Solution: install Python3 (recommended) or convert the codes into Python 2
  - pandas
  - matplotlib
  - itertools
- - os
+ - scipy
+ - plotly
 Solution: Install the modules using pip in the command line/ terminal: 
-pip3 install [module_name]
+pip install [module_name]
 
 
 Github commands:
@@ -71,4 +78,4 @@ git push origin <40-char-hash>:refs/heads/master
 
 
 Let me know if there are corrections.
--jonathan 06/07/2021
+-jonathan 09/07/2021
