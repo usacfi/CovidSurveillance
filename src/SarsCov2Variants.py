@@ -23,7 +23,7 @@ warnings.filterwarnings('ignore')
 
 
 
-def aggregate_divisions(metadata_df, division_column='division', country='philippines'):
+def aggregate_divisions(metadata_df, country, division_column='division'):
     '''
     ======================================================================================
     
@@ -37,7 +37,7 @@ def aggregate_divisions(metadata_df, division_column='division', country='philip
     <INPUTS>
     metadata_df: (dataframe)
     division_column: (str) column name 
-    country: (str) Default: 'philippines'
+    country: (str)
     
     ======================================================================================
     
@@ -54,51 +54,120 @@ def aggregate_divisions(metadata_df, division_column='division', country='philip
     # You may check this with the command below:
     # >>> df[division_column].value_counts()
     philippines_dict = { 
-                            'NCR'         : ['ncr', 'manila', 'national capital region','manila city','navotas city','pasay city','quezon city','taguig city','caloocan city'], 
-                            'CAR'         : ['car', 'cordillera administrative region'],
-                            'Region I'    : ['region i', 'ilocos region','ilocos'],
-                            'Region II'   : ['region ii', 'cagayan valley'],
-                            'Region III'  : ['region iii', 'central luzon'],
-                            'Region IV-A' : ['region iv-a', 'calabarzon'],
-                            'Region IV-B' : ['region iv-b', 'mimaropa'],
-                            'Region V'    : ['region v', 'bicol region','bicol'],
-                            'Region VI'   : ['region vi', 'western visayas'],
-                            'Region VII'  : ['region vii', 'central visayas'],
-                            'Region VIII' : ['region viii', 'eastern visayas'],
-                            'Region IX'   : ['region ix', 'zamboanga peninsula','zamboanga'],
-                            'Region X'    : ['region x', 'northern mindanao'],
-                            'Region XI'   : ['region xi', 'davao region','davao'],
-                            'Region XII'  : ['region xii', 'soccksargen'],
-                            'Caraga'      : ['caraga', 'davao oriental'],
-                            'BARMM'       : ['barmm', 'armm','bangsamoro autonomous region in muslim mindanao'],
-                        }
+        'NCR'         : ['ncr', 'manila', 'nationalcapitalregion','manilacity','navotascity','pasaycity','quezoncity','taguigcity','caloocancity'], 
+        'CAR'         : ['car', 'cordilleraadministrativeregion'],
+        'Region I'    : ['regioni', 'ilocosregion','ilocos'],
+        'Region II'   : ['regionii', 'cagayanvalley'],
+        'Region III'  : ['regioniii', 'centralluzon'],
+        'Region IV-A' : ['regioniv-a', 'calabarzon'],
+        'Region IV-B' : ['regioniv-b', 'mimaropa'],
+        'Region V'    : ['regionv', 'bicolregion','bicol'],
+        'Region VI'   : ['regionvi', 'westernvisayas'],
+        'Region VII'  : ['regionvii', 'centralvisayas'],
+        'Region VIII' : ['regionviii', 'easternvisayas'],
+        'Region IX'   : ['regionix', 'zamboangapeninsula','zamboanga'],
+        'Region X'    : ['regionx', 'northernmindanao'],
+        'Region XI'   : ['regionxi', 'davaoregion','davao'],
+        'Region XII'  : ['regionxii', 'soccsksargen'],
+        'Caraga'      : ['caraga', 'davaooriental'],
+        'BARMM'       : ['barmm', 'armm','bangsamoroautonomousregioninmuslimmindanao'],
+        }
                         
                         
     indonesia_dict = {
-                        'Java'	                : ['banten', 'scr of jakarta', 'west java', 'central java', 'sr of yogyakarta', 'east java'],
-                        'Kalimantan'	        : ['west kalimantan', 'central kalimantan', 'north kalimantan', 'east kalimantan', 'south kalimantan'],
-                        'Maluku Islands'	    : ['north maluku', 'maluku'],
-                        'Lesser Sunda Islands'	: ['bali', 'west nusa tenggara', 'east nusa tenggara'],
-                        'Western New Guinea'	: ['west papua', 'papua'],
-                        'Sulawesi'	            : ['north sulawesi', 'gorontalo', 'central sulawesi', 'west sulawesi', 'south sulawesi', 'southeast sulawesi'],
-                        'Sumatra'	            : ['aceh', 'north sumatra', 'west sumatra, riau', 'riau islands', 'jambi', 'bengkulu', 'south sumatra', 'bangka belitung islands', 'lampung'],
-                    }
+        'Java'	                    : ['jakarta', 'banten', 'scrofjakarta', 'westjava', 'centraljava', 'srofyogyakarta', 'specialregionofyogyakarta', 'eastjava', 'jawabarat', 'jawatengah', 'jawatimur'],
+        'Kalimantan'	            : ['westkalimantan', 'centralkalimantan', 'northkalimantan', 'eastkalimantan', 'southkalimantan', 'kalimantanselatan', 'kalimantantimur', 'kalimantanbarat', 'kalimantantengah'],
+        'Maluku Islands'	        : ['northmaluku', 'maluku', 'malukuutara'],
+        'Lesser Sunda Islands'	    : ['bali', 'westnusatenggara', 'eastnusatenggara', 'nusatenggaratimur', 'nusatenggarabarat'],
+        'Western New Guinea'	    : ['westpapua', 'papua'],
+        'Sulawesi'	                : ['northsulawesi', 'gorontalo', 'centralsulawesi', 'westsulawesi', 'southsulawesi', 'southeastsulawesi', 'sulawesitenggara'],
+        'Sumatra'	                : ['aceh', 'northsumatra', 'westsumatra', 'riau', 'riauislands', 'jambi', 'bengkulu', 'southsumatra', 'bangkabelitungislands', 'lampung', 'sumatrabarat', 'sumatrautara', 'northsumatera', 'sumaterautara', 'sumaterabarat', 'kepulauanbangkabelitung', 'kepulauanriau'],
+        }
                         
                         
-    if country.lower().lstrip().rstrip() == 'philippines':
+    malaysia_dict = {
+        'Northern Region'   : ['penang', 'perak', 'perlis'],                           
+        'Central Region'    : ['kualalumpur', 'selangor', 'negerisembilan', 'wilayahpersekutuan', 'dengkil', 'bukitbintang', 'rembau', 'salak'],                       
+        'Southern Region'   : ['melaka', 'johor'],                             
+        'East Coast'        : ['pahang', 'kelantan'],                 
+        'Sabah'             : ['sabah'],                        
+        'Sarawak'           : ['sarawak'],                             
+        }                                   
+                                                                         
+    brunei_dict =   {'Brunei'    : ['brunei', 'sukang', 'nan']}
+                        
+    cambodia_dict = {'Phnom Penh'    : ['cambodia', 'phnompenh', 'sihanoukville', 'nan', 'steungtreng']}
+                    
+    laos_dict = {
+        'Northern Region'   : ['vientianecapital', 'vientianeprovince'],
+        'Central Region'    : ['savannakhet'],
+        'Southern Region'   : ['saravan', 'champasack', 'luangprabang']
+        }
+    
+    # we only considered the 7 states in myanmar and capital                   
+    myanmar_dict = { 
+        'Mon'       : ['mon', 'myeik'], 
+        'Kayin'     : ['kayin'], 
+        'Rakhine'   : ['rakhine',], 
+        'Kayah'     : ['kayah'], 
+        'Shan'      : ['shan', 'tamu'], 
+        'Chin'      : ['chin'], 
+        'Kachin'    : ['kachin', 'kalay'],
+        'Nay Pyi Taw': ['naypyitaw', 'yangon', 'mandalay'],
+        }                    
+                        
+    thailand_dict = {
+        'North'     : ['tak', 'chiangrai', 'lamphun', 'phitsanulok', 'phayao', 'chiangmai', 'lampang', 'maehongson', 'nan', 'phayao', 'phrae', 'uttaradit'],
+        'Northeast' : ['amnatcharoen', 'buengkan', 'buriram', 'chaiyaphum', 'kalasin', 'khonkaen', 'khonkean', 'loei', 'mahasarakham', 'mukdahan', 'nakhonphanom', 'nakhonratchasima', 'nongbualamphu', 'nongkhai', 'roiet', 'sakonnakhon', 'sisaket', 'surin', 'ubonratchathani', 'udonthani', 'yasothon'],
+        'Central'   : ['bangkok', 'pathumthani', 'phatumthani', 'samutsakhon', 'nonthaburi', 'samutprakan', 'ratchaburi', 'angthong', 'lopburi', 'sukhothai', 'phitsanulok', 'phichit', 'kamphaengphet', 'phetchabun', 'nakhonsawan', 'uthaithani', 'nakhonnayok', 'phranakhonsiayutthaya', 'chainat', 'nakhonpathom', 'samutsongkhram', 'saraburi', 'singburi', 'suphanburi', 'kanchanaburi'],
+        'East'      : ['chanthaburi', 'trat', 'rayong', 'chonburi', 'chonuri', 'chachoengsao', 'prachinburi', 'sakaeo'],
+        'South'     : ['trang', 'suratthani', 'songkhla', 'narathiwat', 'phuket', 'pattani', 'krabi', 'phangnga', 'ranong', 'satun', 'chumphon', 'nakhonsithammarat', 'phatthalung', 'yala', 'phetchaburi', 'prachuapkhirikhan'],
+        }
+    
+    timor_leste_dict = {'Timor-Leste'   : ['easttimor', 'nan']}
+                        
+    vietnam_dict = {
+        'Northwest'             : ['yenbai', 'laocai', 'sonla', 'hoabinh'],
+        'Northeast'             : ['thainguyen', 'bacgiang', 'quangninh', 'langson', 'caobang'],
+        'Red River Delta'       : ['hanoi', 'vinhphuc', 'haiduong', 'hungyen', 'bacninh', 'haiphong', 'hanam', 'thaibinh', 'namdinh', 'phutho'],
+        'North Central Coast'   : ['nghean', 'thanhhoa', 'hatinh'],
+        'South Central Coast'   : ['southcentralcoast', 'danang'],
+        'Central Highlands'     : ['centralhighlands'],
+        'Southeast'             : ['south-easternregion', 'hochiminhcity'],
+        'Mekong River Delta'    : ['kiengiang'],
+        }
+    
+    if country.lower().strip() == 'philippines':
         dictionary = philippines_dict
-    elif country.lower().lstrip().rstrip() == 'indonesia':
+    elif country.lower().strip() == 'indonesia':
         dictionary = indonesia_dict
+    elif country.lower().strip() == 'malaysia':
+        dictionary = malaysia_dict
+    elif country.lower().strip() == 'brunei':
+        dictionary = brunei_dict
+    elif country.lower().strip() == 'cambodia':
+        dictionary = cambodia_dict
+    elif country.lower().strip() == 'laos':
+        dictionary = laos_dict
+    elif country.lower().strip() == 'myanmar':
+        dictionary = myanmar_dict
+    elif country.lower().strip() == 'thailand':
+        dictionary = thailand_dict
+    elif country.lower().strip() == 'timor-leste':
+        dictionary = timor_leste_dict
+    elif country.lower().strip() == 'vietnam':
+        dictionary = vietnam_dict
     else:
-        print('\nError: Unknown country.\n')
-        exit()
+        raise ValueError('\nError: Unknown country.\n Choose from philippines, indonesia, malaysia, brunei, cambodia,' 
+        'laos, myanmar, thailand, timor-leste, thailand')
+        
     
     df = metadata_df.copy()
     df['agg_division'] = 'Unknown'
     
     for division, alt_names in dictionary.items():
         for alt_name in alt_names:
-            indices = df[df[division_column].astype(str).str.lower().str.lstrip().str.rstrip() == alt_name].index
+            indices = df[df[division_column].astype(str).str.lower().str.strip().str.replace(" ","") == alt_name].index
             df.loc[indices, 'agg_division'] = division
             
     return df
@@ -241,8 +310,8 @@ def area_charts_of_divisions(metadata_df, normalized=False, date_column='date',
                 df.index = date_index
                 reg_pivot = df
                 
-                variant_color_df = pd.DataFrame({variant_column:reg_pivot.columns.tolist()})
-                variant_color_df = variant_color(variant_color_df)
+            variant_color_df = pd.DataFrame({variant_column:reg_pivot.columns.tolist()})
+            variant_color_df = variant_color(variant_color_df)
                 
             COLORS = variant_color_df.color.tolist()
 
@@ -322,7 +391,6 @@ def area_charts_of_divisions(metadata_df, normalized=False, date_column='date',
 def bubble_map_of_country(metadata_df, date_column='date', division_column='agg_division',
                         variant_column='variant', id_column='gisaid_epi_isl', color_column='color',
                         latitude_column='div_latitude', longitude_column='div_longitude',
-                        country='philippines',
                         output_filename='output/10_geoplot_variants.html'):
     '''
     ======================================================================================
@@ -467,7 +535,7 @@ def bubble_map_of_country(metadata_df, date_column='date', division_column='agg_
                       legend_title_text = 'Sars-Cov-2 Variants',
                       )
                             
-    fig['layout']['yaxis']['title']='Count'
+    fig['layout']['yaxis']['title'] = 'Count'
     fig.write_html(f'{output_filename}')
 
     
@@ -552,7 +620,7 @@ def combine_metadata(directory, meta_cols=['strain','gisaid_epi_isl','date','reg
     count = 0
     for dirname, _, filenames in os.walk(directory):
         for filename in filenames:
-            if filename == 'metadata.tsv':
+            if 'metadata' in filename:
                 temp_df = pd.read_csv(f'{dirname}/{filename}', 
                                         sep='\t', 
                                         usecols=meta_cols)
@@ -615,7 +683,7 @@ def combine_metadata(directory, meta_cols=['strain','gisaid_epi_isl','date','reg
 
 
 
-def geocode_divisions(metadata_df, division_column='agg_division', country='philippines'):
+def geocode_divisions(metadata_df, country, division_column='agg_division'):
     '''
     ======================================================================================
     
@@ -628,7 +696,7 @@ def geocode_divisions(metadata_df, division_column='agg_division', country='phil
     <INPUTS>
     metadata_df: (dataframe)
     division_column: (str) column name Default: 'agg_division'
-    country: (str) Default: 'philippines'
+    country: (str)
     
     ======================================================================================
     
@@ -641,47 +709,113 @@ def geocode_divisions(metadata_df, division_column='agg_division', country='phil
     
     
     philippines_dict =  {
-                        'NCR'         : [14.5472655, 121],
-                        'CAR'         : [17.35971005, 121.07525292],
-                        'Region I'    : [15.855663, 120.1341247],
-                        'Region II'   : [16.7305959, 121.54067657],
-                        'Region III'  : [15.5, 121.13104248],
-                        'Region IV-A' : [14.16052895, 121.24256648],
-                        'Region IV-B' : [13.072377, 121.3276166],
-                        'Region V'    : [13.42289175, 123.41103829],
-                        'Region VI'   : [11, 122.58101501],
-                        'Region VII'  : [10.6419531, 123.938142],
-                        'Region VIII' : [11.9, 125],
-                        'Region IX'   : [8.5, 123.4243754],
-                        'Region X'    : [8.3, 124.65677618],
-                        'Region XI'   : [7.0428208, 125.580953],
-                        'Region XII'  : [6.2965755, 124.9860759],
-                        'Caraga'      : [9.2471392, 125.85578189],
-                        'BARMM'       : [5.2, 120.02840346],
-                        }
+        'NCR'         : [14.5472655, 121],
+        'CAR'         : [17.35971005, 121.07525292],
+        'Region I'    : [15.855663, 120.1341247],
+        'Region II'   : [16.7305959, 121.54067657],
+        'Region III'  : [15.5, 121.13104248],
+        'Region IV-A' : [14.16052895, 121.24256648],
+        'Region IV-B' : [13.072377, 121.3276166],
+        'Region V'    : [13.42289175, 123.41103829],
+        'Region VI'   : [11, 122.58101501],
+        'Region VII'  : [10.6419531, 123.938142],
+        'Region VIII' : [11.9, 125],
+        'Region IX'   : [8.5, 123.4243754],
+        'Region X'    : [8.3, 124.65677618],
+        'Region XI'   : [7.0428208, 125.580953],
+        'Region XII'  : [6.2965755, 124.9860759],
+        'Caraga'      : [9.2471392, 125.85578189],
+        'BARMM'       : [5.2, 120.02840346],
+        }
     
     indonesia_dict = {
-                        'Java'	                : [-6.430323, 107.500769],
-                        'Kalimantan'	        : [0.529112, 114.198348],
-                        'Maluku Islands'	    : [-3.180422, 129.115683],
-                        'Lesser Sunda Islands'	: [-9.788183, 120.026111],
-                        'Western New Guinea'	: [-3.657968, 137.944309],
-                        'Sulawesi'	            : [-1.833530, 120.287056],
-                        'Sumatra'	            : [-1.094433, 101.977441],
-                    }
+        'Java'	                    : [-6.430323, 107.500769],
+        'Kalimantan'	            : [0.529112, 114.198348],
+        'Maluku Islands'	        : [-3.180422, 129.115683],
+        'Lesser Sunda Islands'	    : [-9.788183, 120.026111],
+        'Western New Guinea'	    : [-3.657968, 137.944309],
+        'Sulawesi'	                : [-1.833530, 120.287056],
+        'Sumatra'	                : [-1.094433, 101.977441],
+        }
+      
+    malaysia_dict = {
+        'Northern Region'    : [5.310380, 101.260808],                           
+        'Central Region'     : [3.128231, 101.839143],
+        'Southern Region'    : [1.868505, 103.550540],
+        'East Coast'         : [3.808925, 103.029524],
+        'Sabah'              : [5.253195, 116.874400],
+        'Sarawak'            : [2.458302, 113.446666],
+        }  
     
+    brunei_dict =   {'Brunei' : [4.410266, 114.609550]}
+    
+    cambodia_dict = {'Phnom Penh' : [11.561475, 104.890590]}
+    
+    laos_dict = {
+        'Northern Region'   : [20.076666, 102.596084],
+        'Central Region'    : [17.216986, 105.309707],
+        'Southern Region'   : [15.291582, 106.531822],
+        }
+
+    myanmar_dict = { 
+        'Mon'       : [15.985101, 98.097306], 
+        'Kayin'     : [17.805977, 96.727180], 
+        'Rakhine'   : [19.863024, 94.241567], 
+        'Kayah'     : [19.640226, 97.168350], 
+        'Shan'      : [21.453758, 99.180514], 
+        'Chin'      : [23.337089, 93.952457], 
+        'Kachin'    : [25.509609, 96.818941],
+        'Nay Pyi Taw': [20.581489, 96.053544],
+        }
+    
+    thailand_dict = {
+        'North'     : [18.531524, 99.468971],
+        'Northeast' : [16.151894, 103.329354],
+        'Central'   : [14.312884, 99.935434],
+        'East'      : [13.172319, 101.954093],
+        'South'     : [8.469181, 99.311848],
+        }
+    
+    timor_leste_dict = {'Timor-Leste'   : [-8.847402, 125.860190]}
+    
+    vietnam_dict = {
+        'Northwest'             : [21.471386, 103.589279],
+        'Northeast'             : [22.286977, 105.918380],
+        'Red River Delta'       : [20.795060, 105.940353],
+        'North Central Coast'   : [18.122794, 105.830489],
+        'South Central Coast'   : [15.663149, 108.027755],
+        'Central Highlands'     : [13.280490, 108.005782],
+        'Southeast'             : [11.391634, 107.302657],
+        'Mekong River Delta'    : [9.944953, 105.544845],
+        }
     
     df = metadata_df.copy()
     df['div_latitude'] = np.nan
     df['div_longitude'] = np.nan
     
-    if country.lower().lstrip().rstrip() == 'philippines':
+    if country.lower().strip() == 'philippines':
         dictionary = philippines_dict
-    elif country.lower().lstrip().rstrip() == 'indonesia':
+    elif country.lower().strip() == 'indonesia':
         dictionary = indonesia_dict
+    elif country.lower().strip() == 'malaysia':
+        dictionary = malaysia_dict    
+    elif country.lower().strip() == 'brunei':
+        dictionary = brunei_dict
+    elif country.lower().strip() == 'cambodia':
+        dictionary = cambodia_dict
+    elif country.lower().strip() == 'laos':
+        dictionary = laos_dict
+    elif country.lower().strip() == 'myanmar':
+        dictionary = myanmar_dict
+    elif country.lower().strip() == 'thailand':
+        dictionary = thailand_dict
+    elif country.lower().strip() == 'timor-leste':
+        dictionary = timor_leste_dict
+    elif country.lower().strip() == 'vietnam':
+        dictionary = vietnam_dict
     else:
-        print('\nError: Unknown country.\n')
-        exit()
+        raise ValueError('\nError: Unknown country.\n Choose from philippines, indonesia, malaysia, brunei, cambodia,' 
+        'laos, myanmar, thailand, timor-leste, vietnam')
     
     for division, coordinates in dictionary.items():
         latitude = coordinates[0]
@@ -729,7 +863,7 @@ def geocode_divisions(metadata_df, division_column='agg_division', country='phil
 
 
 
-def init_functions(directory, country='philippines', lineage_column='pangolin_lineage', 
+def init_functions(directory, country, lineage_column='pangolin_lineage', 
             division_column='division', date_column='date', variant_column='variant', 
             id_column='gisaid_epi_isl', agg_per_week=True,
             meta_cols=['strain', 'gisaid_epi_isl', 'date', 'region', 
@@ -751,9 +885,9 @@ def init_functions(directory, country='philippines', lineage_column='pangolin_li
     
     meta_df = combine_metadata(directory, meta_cols, date_column, agg_per_week)
     meta_df = lineage_to_variant(meta_df, lineage_column)
-    meta_df = aggregate_divisions(meta_df, division_column, country)
+    meta_df = aggregate_divisions(meta_df, country, division_column)
     division_column='agg_division'
-    meta_df = geocode_divisions(meta_df, division_column, country)
+    meta_df = geocode_divisions(meta_df, country, division_column)
     latitude_column='div_latitude'
     longitude_column='div_longitude'
     meta_df = variant_color(meta_df, variant_column)
@@ -846,9 +980,6 @@ def lineage_to_variant(metadata_df, lineage_column='pangolin_lineage'):
                 'Beta'  : ['B.1.351'], 
                 'Gamma' : ['P.1'], 
                 'Delta' : ['B.1.617.2', 'AY'], 
-                'Eta'   : ['B.1.525'], 
-                'Iota'  : ['B.1.526'], 
-                'Kappa' : ['B.1.617.1'], 
                 'Lambda': ['C.37'],
                 'Mu'    : ['B.1.621'],
                 }
