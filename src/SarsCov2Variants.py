@@ -637,10 +637,9 @@ def combine_metadata(directory, meta_cols=['strain','gisaid_epi_isl','date','reg
         
     metadata_df.sort_values(by=date_column, ascending=False, inplace=True)
     metadata_df = metadata_df.reset_index(drop=True)
-    metadata_df[date_column] = metadata_df[date_column].astype('datetime64')
+    metadata_df[date_column] = pd.to_datetime(metadata_df[date_column], errors='coerce')
     if agg_per_week:
         metadata_df[date_column] = metadata_df[date_column].dt.to_period('W').dt.start_time
-
     
     return metadata_df
 
