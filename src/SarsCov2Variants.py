@@ -254,6 +254,9 @@ def area_charts_of_divisions(metadata_df, normalized=False, date_column='date',
     ======================================================================================                                                                                               
     '''
     
+
+    metadata_df[date_column] = metadata_df[date_column].dt.to_period('W').dt.start_time
+    
     groupby = metadata_df[[ variant_column,
                             date_column,
                             division_column,
@@ -590,7 +593,7 @@ def bubble_map_of_country(metadata_df, date_column='date', division_column='agg_
 
 def combine_metadata(directory, meta_cols=['strain','gisaid_epi_isl','date','region','country',
                     'division','age','sex','pangolin_lineage','GISAID_clade','originating_lab',
-                    'submitting_lab','date_submitted'], date_column='date', agg_per_week=True):
+                    'submitting_lab','date_submitted'], date_column='date'):
     '''
     ======================================================================================
                     
@@ -604,7 +607,6 @@ def combine_metadata(directory, meta_cols=['strain','gisaid_epi_isl','date','reg
     directory: (str) where the folders containing the metadata.tsv files are located
     meta_cols: (list) list of column names (str)
     date_column: (str) column name by which to sort the combined dataframe. Default:'date'
-    agg_per_week: (bool) if True, aggregates the dates per week, else the dates remain
     
     ====================================================================================== 
        
@@ -615,6 +617,22 @@ def combine_metadata(directory, meta_cols=['strain','gisaid_epi_isl','date','reg
     ====================================================================================== 
     '''
     
+    def convert_to_date(df, date_columns):
+        # Solve the issues with different date formats
+        new_df = df.copy()
+        for date_column in date_columns:
+            new_df['temp_date'] = pd.to_datetime(new_df[date_column], format='%d/%m/%Y', errors='coerce')  
+            mask = new_df['temp_date'].isnull()
+            new_df.loc[mask, 'temp_date'] = pd.to_datetime(new_df[date_column], format='%m/%d/%Y', errors='coerce')
+            mask = new_df['temp_date'].isnull()
+            new_df.loc[mask, 'temp_date'] = pd.to_datetime(new_df[date_column], format='%Y-%m-%d', errors='coerce')    
+            mask = new_df['temp_date'].isnull()
+            new_df.loc[mask, 'temp_date'] = pd.to_datetime(new_df[date_column], format='%Y-%d-%m', errors='coerce')
+            new_df[date_column] = new_df['temp_date'].copy()
+            new_df = new_df.drop(columns='temp_date')
+        return new_df
+    
+    
     metadata_df = pd.DataFrame()
     
     count = 0
@@ -624,7 +642,7 @@ def combine_metadata(directory, meta_cols=['strain','gisaid_epi_isl','date','reg
                 temp_df = pd.read_csv(f'{dirname}/{filename}', 
                                         sep='\t', 
                                         usecols=meta_cols)
-                                                                        
+                temp_df = convert_to_date(temp_df, [date_column, 'date_submitted'])
                 metadata_df = pd.concat([metadata_df, temp_df], ignore_index=True)
                 count = count + 1
 
@@ -637,11 +655,15 @@ def combine_metadata(directory, meta_cols=['strain','gisaid_epi_isl','date','reg
         
     metadata_df.sort_values(by=date_column, ascending=False, inplace=True)
     metadata_df = metadata_df.reset_index(drop=True)
-    metadata_df[date_column] = pd.to_datetime(metadata_df[date_column], errors='coerce')
-    if agg_per_week:
-        metadata_df[date_column] = metadata_df[date_column].dt.to_period('W').dt.start_time
     
     return metadata_df
+
+
+
+
+
+
+
 
 
 
@@ -864,7 +886,7 @@ def geocode_divisions(metadata_df, country, division_column='agg_division'):
 
 def init_functions(directory, country, lineage_column='pangolin_lineage', 
             division_column='division', date_column='date', variant_column='variant', 
-            id_column='gisaid_epi_isl', agg_per_week=True,
+            id_column='gisaid_epi_isl',
             meta_cols=['strain', 'gisaid_epi_isl', 'date', 'region', 
             'country', 'division', 'age', 'sex', 'pangolin_lineage', 'GISAID_clade', 
             'originating_lab', 'submitting_lab', 'date_submitted'],):
@@ -882,7 +904,7 @@ def init_functions(directory, country, lineage_column='pangolin_lineage',
     
     output_filename = f'output/12_variants_in_{country}'
     
-    meta_df = combine_metadata(directory, meta_cols, date_column, agg_per_week)
+    meta_df = combine_metadata(directory, meta_cols, date_column)
     meta_df = lineage_to_variant(meta_df, lineage_column)
     meta_df = aggregate_divisions(meta_df, country, division_column)
     division_column='agg_division'
@@ -901,8 +923,18 @@ def init_functions(directory, country, lineage_column='pangolin_lineage',
                                                    latitude_column,
                                                    longitude_column,
                                                   ], as_index=False).count() 
-                                                   
-    casecount_df.columns = ['Variant', 'Location', 'Latitude', 'Longitude', 'Case Count']
+    
+    casecount_df.columns = ['Variant', 
+                            'Location', 
+                            'Latitude', 
+                            'Longitude',
+                            'Case Count']
+    
+    last_collection_date = meta_df.sort_values(date_column)[date_column].dropna().iloc[-1]
+    last_submission_date = meta_df.sort_values('date_submitted')['date_submitted'].dropna().iloc[-1] 
+    
+    casecount_df['Last Collection Date'] = last_collection_date
+    casecount_df['Last Submission Date'] = last_submission_date                                             
     
     meta_df.to_csv(f'{output_filename}.csv', index=False)
     casecount_df.to_csv(f'{output_filename}_aggregated.csv', index=False)
