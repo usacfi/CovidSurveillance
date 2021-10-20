@@ -115,6 +115,8 @@ def aggregate_divisions(metadata_df, country, division_column='division'):
         'Kachin'    : ['kachin', 'kalay'],
         'Nay Pyi Taw': ['naypyitaw', 'yangon', 'mandalay'],
         }                    
+             
+    singapore_dict = {'Singapore' : ['singapore', 'nan']}         
                         
     thailand_dict = {
         'North'     : ['tak', 'chiangrai', 'lamphun', 'phitsanulok', 'phayao', 'chiangmai', 'lampang', 'maehongson', 'nan', 'phayao', 'phrae', 'uttaradit'],
@@ -151,6 +153,8 @@ def aggregate_divisions(metadata_df, country, division_column='division'):
         dictionary = laos_dict
     elif country.lower().strip() == 'myanmar':
         dictionary = myanmar_dict
+    elif country.lower().strip() == 'singapore':
+        dictionary = singapore_dict
     elif country.lower().strip() == 'thailand':
         dictionary = thailand_dict
     elif country.lower().strip() == 'timor-leste':
@@ -159,7 +163,7 @@ def aggregate_divisions(metadata_df, country, division_column='division'):
         dictionary = vietnam_dict
     else:
         raise ValueError('\nError: Unknown country.\n Choose from philippines, indonesia, malaysia, brunei, cambodia,' 
-        'laos, myanmar, thailand, timor-leste, thailand')
+        'laos, myanmar, singapore, thailand, timor-leste, thailand')
         
     
     df = metadata_df.copy()
@@ -789,6 +793,8 @@ def geocode_divisions(metadata_df, country, division_column='agg_division'):
         'Nay Pyi Taw': [20.581489, 96.053544],
         }
     
+    singapore_dict = {'Singapore' : [1.352, 103.8]}
+    
     thailand_dict = {
         'North'     : [18.531524, 99.468971],
         'Northeast' : [16.151894, 103.329354],
@@ -828,6 +834,8 @@ def geocode_divisions(metadata_df, country, division_column='agg_division'):
         dictionary = laos_dict
     elif country.lower().strip() == 'myanmar':
         dictionary = myanmar_dict
+    elif country.lower().strip() == 'singapore':
+        dictionary = singapore_dict
     elif country.lower().strip() == 'thailand':
         dictionary = thailand_dict
     elif country.lower().strip() == 'timor-leste':
@@ -836,7 +844,7 @@ def geocode_divisions(metadata_df, country, division_column='agg_division'):
         dictionary = vietnam_dict
     else:
         raise ValueError('\nError: Unknown country.\n Choose from philippines, indonesia, malaysia, brunei, cambodia,' 
-        'laos, myanmar, thailand, timor-leste, vietnam')
+        'laos, myanmar, singapore, thailand, timor-leste, vietnam')
     
     for division, coordinates in dictionary.items():
         latitude = coordinates[0]
