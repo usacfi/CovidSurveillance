@@ -14,8 +14,11 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-import warnings
+from datetime import datetime
+import shutil
+from pathlib import Path
 
+import warnings
 warnings.filterwarnings('ignore')
 
 
@@ -238,7 +241,7 @@ def aggregate_divisions(metadata_df, country, division_column='division'):
 
 
 
-def area_charts_of_divisions(metadata_df, normalized=False, date_column='date',
+def area_charts_of_divisions(metadata_df, country, normalized=False, date_column='date', 
                             division_column='agg_division', id_column='gisaid_epi_isl', 
                             variant_column='variant', output_directory='output/11_regions'):
     '''
@@ -349,7 +352,8 @@ def area_charts_of_divisions(metadata_df, normalized=False, date_column='date',
         plt.title('{}'.format(region), 
                         fontsize = 17, 
                         fontstyle = 'oblique') 
-        plt.savefig(f'{output_directory}/{i}_{region}_{update}.png')
+        Path(f'{output_directory}/{country}').mkdir(exist_ok=True, parents=True)
+        plt.savefig(f'{output_directory}/{country}/{i}_{region}_{update}.png')
     
     
     
@@ -936,7 +940,8 @@ def init_functions(directory, country, lineage_column='pangolin_lineage',
     ======================================================================================   
     '''
     
-    output_filename = f'output/12_variants_in_{country}'
+    output_directory = f'output/12_variants'
+    Path(output_directory).mkdir(exist_ok=True, parents=True)
     
     meta_df = combine_metadata(directory, meta_cols, date_column, with_phrase, without_phrase)
     meta_df = lineage_to_variant(meta_df, lineage_column)
@@ -970,8 +975,8 @@ def init_functions(directory, country, lineage_column='pangolin_lineage',
     casecount_df['Last Collection Date'] = last_collection_date
     casecount_df['Last Submission Date'] = last_submission_date                                             
     
-    meta_df.to_csv(f'{output_filename}.csv', index=False)
-    casecount_df.to_csv(f'{output_filename}_aggregated.csv', index=False)
+    meta_df.to_csv(f'{output_directory}/12_variants_in_{country}.csv', index=False)
+    casecount_df.to_csv(f'{output_directory}/12_variants_in_{country}_aggregated.csv', index=False)
     
     return meta_df
 
@@ -1085,6 +1090,54 @@ def lineage_to_variant(metadata_df, lineage_column='pangolin_lineage'):
 
 
 
+
+
+
+
+
+
+
+
+def southeast_asia(input_directory):
+    
+    # Create southeast asia csv and southeast asia aggregated csv
+    meta_df = init_functions(input_directory, 
+                            country='southeastasia', 
+                            with_phrase='12_variants_in', 
+                            division_column='country')
+                           
+    # Create area charts for each southeast asian country 
+    shutil.rmtree('output/11_regions/southeastasia')                           
+    area_charts_of_divisions(meta_df, country='southeastasia')
+    area_charts_of_divisions(meta_df, country='southeastasia', normalized=True)
+    
+    # Create GISAID submission summary table
+    df = pd.DataFrame()
+    countries = [country for country in meta_df.agg_division.unique() if country not in ('nan', '?') and type(country) == str]
+    df['Country'] = countries
+    
+    for country in countries:
+        print(country)
+        temp_df = meta_df[meta_df.agg_division==country][['date','date_submitted']].dropna().copy()
+        temp_df.date = pd.to_datetime(temp_df.date)
+        temp_df.date_submitted = pd.to_datetime(temp_df.date_submitted)
+        temp_df = temp_df.sort_values(by='date_submitted', ascending=False)
+        
+        # Calculate submissions per month
+        total_months = datetime.today().month - temp_df.date_submitted.iloc[-1].month
+        df.loc[df.Country==country, 'Submissions per Month'] = temp_df.date.count()/total_months
+
+        # Calculate average difference between submission and collection dates
+        diff = (temp_df.date_submitted - temp_df.date).astype('timedelta64[D]')
+        df.loc[df.Country==country, 'Submission-Collection Date Difference'] = np.mean(diff)
+    
+        # Calculate the average frequency of submissions
+        d1 = temp_df.date_submitted.unique()[:-1]
+        d2 = temp_df.date_submitted.unique()[1:]
+        df.loc[df.Country==country, 'Submission Frequency'] = np.mean(d1-d2).astype('timedelta64[D]').astype(int)
+    
+    df.to_csv('output/gisaid_submissions.csv', index=False)
+    return df
 
 
 
