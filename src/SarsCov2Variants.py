@@ -161,18 +161,23 @@ def aggregate_divisions(metadata_df, country, division_column='division'):
         dictionary = timor_leste_dict
     elif country.lower().strip() == 'vietnam':
         dictionary = vietnam_dict
+    elif country.lower().strip() == 'southeastasia':
+        pass
     else:
         raise ValueError('\nError: Unknown country.\n Choose from philippines, indonesia, malaysia, brunei, cambodia,' 
-        'laos, myanmar, singapore, thailand, timor-leste, thailand')
+        'laos, myanmar, singapore, thailand, timor-leste, vietnam.')
         
     
     df = metadata_df.copy()
-    df['agg_division'] = 'Unknown'
     
-    for division, alt_names in dictionary.items():
-        for alt_name in alt_names:
-            indices = df[df[division_column].astype(str).str.lower().str.strip().str.replace(" ","") == alt_name].index
-            df.loc[indices, 'agg_division'] = division
+    try:
+        df['agg_division'] = 'Unknown'
+        for division, alt_names in dictionary.items():
+            for alt_name in alt_names:
+                indices = df[df[division_column].astype(str).str.lower().str.strip().str.replace(" ","") == alt_name].index
+                df.loc[indices, 'agg_division'] = division
+    except:
+        df['agg_division'] = df[division_column]
             
     return df
 
@@ -271,7 +276,7 @@ def area_charts_of_divisions(metadata_df, normalized=False, date_column='date',
     countmax = groupby.groupby(by=[date_column,division_column])[id_column].sum().max()                                           
     
     divisions = metadata_df[division_column].unique().tolist()
-    divisions = [col for col in divisions if col not in ('Unknown')]                    
+    divisions = [col for col in divisions if col not in ('Unknown','?','nan')]                    
     random_number = np.random.randint(9999)                                         
     for i in range(len(divisions)):
         region = divisions[i]
@@ -597,7 +602,8 @@ def bubble_map_of_country(metadata_df, date_column='date', division_column='agg_
 
 def combine_metadata(directory, meta_cols=['strain','gisaid_epi_isl','date','region','country',
                     'division','age','sex','pangolin_lineage','GISAID_clade','originating_lab',
-                    'submitting_lab','date_submitted'], date_column='date'):
+                    'submitting_lab','date_submitted'], date_column='date', with_phrase='metadata',
+                    without_phrase='aggregated'):
     '''
     ======================================================================================
                     
@@ -642,19 +648,23 @@ def combine_metadata(directory, meta_cols=['strain','gisaid_epi_isl','date','reg
     count = 0
     for dirname, _, filenames in os.walk(directory):
         for filename in filenames:
-            if 'metadata' in filename:
+            if with_phrase in filename and without_phrase not in filename and 'southeastasia' not in filename:
+                print(f'{dirname}/{filename}')
+                if filename[-3:] == 'tsv':
+                    sep = '\t'
+                else:
+                    sep = ','
                 temp_df = pd.read_csv(f'{dirname}/{filename}', 
-                                        sep='\t', 
+                                        sep=sep, 
                                         usecols=meta_cols)
                 temp_df = convert_to_date(temp_df, [date_column, 'date_submitted'])
                 metadata_df = pd.concat([metadata_df, temp_df], ignore_index=True)
                 count = count + 1
 
     if len(metadata_df) == 0:
-        print('\nError: No data was found. Check the spelling of filenames and check if the files are not empty.\n')
-        exit()
+        raise ValueError('\nError: No data was found. Check the spelling of filenames and check if the files are not empty.\n')
     else:
-        print(f'Found {count} "metadata.tsv" files\n')
+        print(f'Found {count} files\n')
         print(f'Total GISAID sequences: {len(metadata_df)}')
         
     metadata_df.sort_values(by=date_column, ascending=False, inplace=True)
@@ -816,6 +826,20 @@ def geocode_divisions(metadata_df, country, division_column='agg_division'):
         'Mekong River Delta'    : [9.944953, 105.544845],
         }
     
+    southeastasia_dict = {
+        'Brunei'                : [4.410266, 114.609550],
+        'Cambodia'              : [11.561475, 104.890590],
+        'Indonesia'             : [-6.430323, 107.500769],
+        'Laos'                  : [20.076666, 102.596084],
+        'Malaysia'              : [3.128231, 101.839143],
+        'Myanmar'               : [20.581489, 96.053544],
+        'Philippines'           : [14.5472655, 121],
+        'Singapore'             : [1.352, 103.8],
+        'Thailand'              : [18.531524, 99.468971],
+        'Timor-Leste'           : [-8.847402, 125.860190],
+        'Vietnam'               : [20.795060, 105.940353],
+        }
+    
     df = metadata_df.copy()
     df['div_latitude'] = np.nan
     df['div_longitude'] = np.nan
@@ -842,6 +866,8 @@ def geocode_divisions(metadata_df, country, division_column='agg_division'):
         dictionary = timor_leste_dict
     elif country.lower().strip() == 'vietnam':
         dictionary = vietnam_dict
+    elif country.lower().strip() == 'southeastasia':
+        dictionary = southeastasia_dict
     else:
         raise ValueError('\nError: Unknown country.\n Choose from philippines, indonesia, malaysia, brunei, cambodia,' 
         'laos, myanmar, singapore, thailand, timor-leste, vietnam')
@@ -894,7 +920,7 @@ def geocode_divisions(metadata_df, country, division_column='agg_division'):
 
 def init_functions(directory, country, lineage_column='pangolin_lineage', 
             division_column='division', date_column='date', variant_column='variant', 
-            id_column='gisaid_epi_isl',
+            id_column='gisaid_epi_isl', with_phrase='metadata', without_phrase='aggregated',
             meta_cols=['strain', 'gisaid_epi_isl', 'date', 'region', 
             'country', 'division', 'age', 'sex', 'pangolin_lineage', 'GISAID_clade', 
             'originating_lab', 'submitting_lab', 'date_submitted'],):
@@ -912,7 +938,7 @@ def init_functions(directory, country, lineage_column='pangolin_lineage',
     
     output_filename = f'output/12_variants_in_{country}'
     
-    meta_df = combine_metadata(directory, meta_cols, date_column)
+    meta_df = combine_metadata(directory, meta_cols, date_column, with_phrase, without_phrase)
     meta_df = lineage_to_variant(meta_df, lineage_column)
     meta_df = aggregate_divisions(meta_df, country, division_column)
     division_column='agg_division'
@@ -1032,6 +1058,27 @@ def lineage_to_variant(metadata_df, lineage_column='pangolin_lineage'):
             df.loc[indices, 'variant'] = variant
             
     return df
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
