@@ -266,7 +266,7 @@ def area_charts_of_divisions(metadata_df, country, normalized=False, date_column
     ======================================================================================                                                                                               
     '''
     
-
+    metadata_df[date_column] = pd.to_datetime(metadata_df[date_column])
     metadata_df[date_column] = metadata_df[date_column].dt.to_period('M').dt.start_time
     
     groupby = metadata_df[[ variant_column,
@@ -295,7 +295,7 @@ def area_charts_of_divisions(metadata_df, country, normalized=False, date_column
     
         # If there's data
         else:
-            reg_pivot = reg.pivot(index=reg[date_column], columns=variant_column)[id_column]
+            reg_pivot = reg.pivot(index=date_column, columns=variant_column)[id_column]
             reg_pivot = reg_pivot.replace(np.nan, 0)
             total_df = reg_pivot.sum(axis=1)
       
@@ -342,7 +342,7 @@ def area_charts_of_divisions(metadata_df, country, normalized=False, date_column
                                       reverse=True))
         ax.legend(handles, labels)
         plt.ylim(0, countmax)
-        plt.xlim(metadata_df[date_column].min(), metadata_df[date_column].max())
+        plt.xlim(metadata_df[date_column].min().date(), metadata_df[date_column].max().date())
         plt.xlabel(date_column)
         update = f'{random_number}' 
         if normalized:
@@ -1102,7 +1102,7 @@ def main(countries=['Brunei', 'Cambodia', 'Indonesia', 'Laos', 'Malaysia', 'Myan
                 southeast_asia('output/12_variants')
                 print(country)
             else:
-                shutil.rmtree(f'output/11_regions/{country}')
+                shutil.rmtree(f'output/11_regions/{country}', ignore_errors=True)
                 meta_df = init_functions(f'references/Sequences/{country}/Variant_Surveillance', country=country)
                 area_charts_of_divisions(meta_df, country, True)
                 area_charts_of_divisions(meta_df, country)
@@ -1148,7 +1148,7 @@ def southeast_asia(input_directory):
                             division_column='country')
                            
     # Create area charts for each southeast asian country 
-    shutil.rmtree('output/11_regions/southeastasia')                           
+    shutil.rmtree('output/11_regions/southeastasia', ignore_errors=True)                           
     area_charts_of_divisions(meta_df, country='southeastasia')
     area_charts_of_divisions(meta_df, country='southeastasia', normalized=True)
     
