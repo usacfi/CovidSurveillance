@@ -1,6 +1,6 @@
 
 # SARS-CoV-2 Genomic Surveillance and RNASeqAnalysis
-![project-poster](./references/images/Genomic Surveillance.jpg)
+![project-poster](./references/images/GenomicSurveillance.jpg)
 
 SARS-CoV-2 Genmic Surveillance and RNASeqAnalysis (technically DNA) has two components:
 
