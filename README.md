@@ -15,7 +15,7 @@ SARS-CoV-2 Genmic Surveillance and RNASeqAnalysis has two components:
 
 Variant Surveillance is an additional component of this project to monitor the circulating variants.
 
-####Run the following inside Python:
+#### Run the following inside Python:
 
 > `import src.SarsCov2Variants as scv`  
 > `scv.main()`
