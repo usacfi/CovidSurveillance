@@ -255,7 +255,7 @@ def area_charts_of_divisions(metadata_df, country, normalized=False, date_column
     
     <INPUTS>
     metadata_df: (dataframe)
-    normalized: (bool) If True, the area charts are normalized per aggregation mode (weekly),
+    normalized: (bool) If True, the area charts are normalized per aggregation mode (monthly),
                             Default: False
     date_column: (str) column name, Default: 'date'
     division_column: (str) column name, Default: 'agg_division'
@@ -267,7 +267,7 @@ def area_charts_of_divisions(metadata_df, country, normalized=False, date_column
     '''
     
 
-    metadata_df[date_column] = metadata_df[date_column].dt.to_period('W').dt.start_time
+    metadata_df[date_column] = metadata_df[date_column].dt.to_period('M').dt.start_time
     
     groupby = metadata_df[[ variant_column,
                             date_column,
@@ -280,7 +280,7 @@ def area_charts_of_divisions(metadata_df, country, normalized=False, date_column
     
     divisions = metadata_df[division_column].unique().tolist()
     divisions = [col for col in divisions if col not in ('Unknown','?','nan')]                    
-    random_number = np.random.randint(9999)                                         
+    random_number = ''#np.random.randint(9999)                                         
     for i in range(len(divisions)):
         region = divisions[i]
         reg = groupby[groupby[division_column]==region] 
@@ -352,7 +352,7 @@ def area_charts_of_divisions(metadata_df, country, normalized=False, date_column
         plt.title('{}'.format(region), 
                         fontsize = 17, 
                         fontstyle = 'oblique') 
-        Path(f'{output_directory}/{country}').mkdir(exist_ok=True, parents=True)
+        Path(f'{output_directory}/{country.lower().strip()}').mkdir(exist_ok=True, parents=True)
         plt.savefig(f'{output_directory}/{country}/{i}_{region}_{update}.png')
     
     
@@ -1067,6 +1067,47 @@ def lineage_to_variant(metadata_df, lineage_column='pangolin_lineage'):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def main(countries=['Brunei', 'Cambodia', 'Indonesia', 'Laos', 'Malaysia', 'Myanmar', 'Philippines',
+        'Singapore', 'Southeastasia', 'Thailand', 'Timor-Leste', 'Vietnam']):
+        
+        for country in countries:
+            if country.lower().strip()=='southeastasia':
+                southeast_asia('output/12_variants')
+                print(country)
+            else:
+                shutil.rmtree(f'output/11_regions/{country}')
+                meta_df = init_functions(f'references/Sequences/{country}/Variant_Surveillance', country=country)
+                area_charts_of_divisions(meta_df, country, True)
+                area_charts_of_divisions(meta_df, country)
+                print(country)
+            
 
 
 
