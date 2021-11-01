@@ -2,7 +2,7 @@
 # SARS-CoV-2 Genomic Surveillance and RNASeqAnalysis
 ![project-poster](./references/images/GenomicSurveillance.jpg)
 
-SARS-CoV-2 Genmic Surveillance and RNASeqAnalysis (technically DNA) has two components:
+SARS-CoV-2 Genomic Surveillance and RNASeqAnalysis (technically DNA) has two components:
 
 1. Variant Surveillance
 2. Epitope Surveillance
@@ -22,6 +22,9 @@ Variant Surveillance is an additional component of this project to monitor the c
 This will generate csv files in `output/12_variants` and images in `output/11_regions`
 
 ![variants-in-philippines](./output/11_regions/philippines/0_NCR_N.png)
+
+#### Website
+<https://www.usacfi.net/covid-19-surveillance.html>
 
 ***
 ## Epitope Surveillance
