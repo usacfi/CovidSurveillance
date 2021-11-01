@@ -22,6 +22,8 @@ Variant Surveillance is an additional component of this project to monitor the c
 
 This will generate csv files in `output/12_variants` and images in `output/11_regions`
 
+![variants-in-philippines](./output/11_regions/philippines/0_NCR_N.png)
+
 ***
 ## Epitope Surveillance
 
