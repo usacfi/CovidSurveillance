@@ -1,9 +1,8 @@
 
 # SARS-CoV-2 Genomic Surveillance and RNASeqAnalysis
+![project-poster]('references/images/Genomic Surveillance.jpg')
 
-(Technically DNA Sequence Analysis)
-
-SARS-CoV-2 Genmic Surveillance and RNASeqAnalysis has two components:
+SARS-CoV-2 Genmic Surveillance and RNASeqAnalysis (technically DNA) has two components:
 
 1. Variant Surveillance
 2. Epitope Surveillance
