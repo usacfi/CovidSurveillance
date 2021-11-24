@@ -668,8 +668,8 @@ def combine_metadata(directory, meta_cols=['strain','gisaid_epi_isl','date','reg
     if len(metadata_df) == 0:
         raise ValueError('\nError: No data was found. Check the spelling of filenames and check if the files are not empty.\n')
     else:
-        print(f'Found {count} files\n')
-        print(f'Total GISAID sequences: {len(metadata_df)}')
+        print(f'Found {count} files')
+        print(f'Total GISAID sequences: {len(metadata_df)}\n')
         
     metadata_df.sort_values(by=date_column, ascending=False, inplace=True)
     metadata_df = metadata_df.reset_index(drop=True)
@@ -1095,18 +1095,17 @@ def lineage_to_variant(metadata_df, lineage_column='pangolin_lineage'):
 
 
 def main(countries=['Brunei', 'Cambodia', 'Indonesia', 'Laos', 'Malaysia', 'Myanmar', 'Philippines',
-        'Singapore', 'Southeastasia', 'Thailand', 'Timor-Leste', 'Vietnam']):
+        'Singapore', 'Thailand', 'Timor-Leste', 'Vietnam']):
         
         for country in countries:
-            if country.lower().strip()=='southeastasia':
-                southeast_asia('output/12_variants')
                 print(country)
-            else:
                 shutil.rmtree(f'output/11_regions/{country}', ignore_errors=True)
                 meta_df = init_functions(f'references/Sequences/{country}/Variant_Surveillance', country=country)
                 area_charts_of_divisions(meta_df, country, True)
                 area_charts_of_divisions(meta_df, country)
-                print(country)
+
+        print('Southeastasia')
+        southeast_asia('output/12_variants', countries)
             
 
 
@@ -1139,7 +1138,7 @@ def main(countries=['Brunei', 'Cambodia', 'Indonesia', 'Laos', 'Malaysia', 'Myan
 
 
 
-def southeast_asia(input_directory):
+def southeast_asia(input_directory, countries):
     
     # Create southeast asia csv and southeast asia aggregated csv
     meta_df = init_functions(input_directory, 
@@ -1154,7 +1153,6 @@ def southeast_asia(input_directory):
     
     # Create GISAID submission summary table
     df = pd.DataFrame()
-    countries = [country for country in meta_df.agg_division.unique() if country not in ('nan', '?') and type(country) == str]
     df['Country'] = countries
     
     for country in countries:
