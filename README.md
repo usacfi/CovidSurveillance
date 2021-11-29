@@ -33,7 +33,7 @@ Epitope Surveillance aligns multiple COVID DNA sequences, trims the genes of int
 
 #### Example command line to run script:
 
-> `python3 main.py -i "references/Sequences/Philippines"`
+> `python3 main.py -i "references/Sequences/omicron_variant" -m "references/Sequences/omicron_variant"`
 
 
 
@@ -66,13 +66,13 @@ Output files:
 * `04_mutations.fasta`
 * `05_aminoacid_replacements.csv`
 * `06_unique_mutations.csv`
-* `07_mutation_profile_[protein]_[#].html`
+* `07_heatmap_[protein].html`
 * `08_table_[protein]_[#].html`
 * `09_mutation_geomap.html`
 * `10_geoplot_variants.html`
 * `11_regions`
 * `12_variants`
-* `13_filtered_seq_philippines.csv`
+* `13_filtered_seq_epitsurve.csv`
 
 Fasta files can be viewed using any alignment viewers, e.g. AliView
 
