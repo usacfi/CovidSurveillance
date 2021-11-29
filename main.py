@@ -64,15 +64,15 @@ if __name__ == "__main__":
     print('Isip I, Dumancas G, Fenger D, de Castro R\n'.center(width))
     print('================================================================\n\n'.center(width))
 
-    # Search and combine all metadata.tsv under Epitope_Surveillance
-    meta_df = scv.combine_metadata(f'{args.metadata}/Epitope_Surveillance', agg_per_week=False)
+    # Search and combine all metadata.tsv
+    meta_df = scv.combine_metadata(f'{args.metadata}')
     meta_df = scv.lineage_to_variant(meta_df)
-    meta_df = scv.aggregate_divisions(meta_df)
-    meta_df.to_csv('output/13_filtered_seq_philippines.csv', index=False)
+    #meta_df = scv.aggregate_divisions(meta_df)
+    meta_df.to_csv('output/13_filtered_seq_epitsurve.csv', index=False)
 
-    # Search and combine all fasta files under Epitope_Surveillance
-    combine_fasta_files(f'{args.input}/Epitope_Surveillance')
-    input_fasta = f'{args.input}/Epitope_Surveillance/combined.fasta'
+    # Search and combine all fasta files
+    combine_fasta_files(f'{args.input}')
+    input_fasta = f'{args.input}/combined.fasta'
 
     # Align sequences using MUSCLE/MAFFT if the input is not yet aligned 
     if args.needs_alignment:
@@ -170,14 +170,17 @@ if __name__ == "__main__":
     # Save the dataframes into separate files
     df.to_csv('output/05_aminoacid_replacements.csv')
     new_df.to_csv('output/06_unique_mutations.csv')
+    
+    for n in range(len(genes)):
+        heatmap = fasta_to_heatmap('output/04_mutations.fasta', gene=n, meta_df=meta_df)
+        heatmap.to_csv(f'output/07_heatmap_{genes[n][0]}.csv', index=False)
 
     # Plot the mutations
-    plot_mutations(fasta_to_df('output/04_mutations.fasta'), meta_df, epitopes, genes)  
+    #plot_mutations(fasta_to_df('output/04_mutations.fasta'), meta_df, epitopes, genes)  
 
     # Plot mutations geographically
-    complete_meta_df = scv.init_functions(f'{args.metadata}/Variant_Surveillance')
-    scv.area_charts_of_divisions(complete_meta_df)
-    scv.bubble_map_of_country(complete_meta_df)
+    #scv.main()
+
 
     toc = time.perf_counter()
     print('\nOverall Runtime: {:.4f} seconds\n'.format(toc-tic))
