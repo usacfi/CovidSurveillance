@@ -1050,6 +1050,7 @@ def lineage_to_variant(metadata_df, lineage_column='pangolin_lineage'):
                 'Beta'  : ['B.1.351'], 
                 'Gamma' : ['P.1'], 
                 'Delta' : ['B.1.617.2', 'AY'], 
+                'Omicron': ['B.1.1.529'],
                 'Lambda': ['C.37'],
                 'Mu'    : ['B.1.621'],
                 }
@@ -1241,7 +1242,7 @@ def variant_color(metadata_df, variant_column='variant'):
                     'Delta' : 'gold',
                     'Eta'   : 'orange',
                     'Iota'  : 'brown',
-                    'Kappa' : 'green',
+                    'Omicron': 'green',
                     'Lambda': 'lightblue',
                     'Mu'    : 'magenta',
                     'Others': 'whitesmoke',        
