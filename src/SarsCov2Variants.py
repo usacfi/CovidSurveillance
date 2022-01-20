@@ -280,7 +280,7 @@ def area_charts_of_divisions(metadata_df, country, normalized=False, date_column
     
     divisions = metadata_df[division_column].unique().tolist()
     divisions = [col for col in divisions if col not in ('Unknown','?','nan')]                    
-    random_number = ''#np.random.randint(9999)                                         
+    random_number = np.random.randint(9999)                                         
     for i in range(len(divisions)):
         region = divisions[i]
         reg = groupby[groupby[division_column]==region] 
@@ -769,21 +769,21 @@ def geocode_divisions(metadata_df, country, division_column='agg_division'):
     
     indonesia_dict = {
         'Java'	                    : [-6.430323, 107.500769],
+        'Sumatra'	                : [-1.094433, 101.977441],
         'Kalimantan'	            : [0.529112, 114.198348],
-        'Maluku Islands'	        : [-3.180422, 129.115683],
+        'Sulawesi'	                : [-1.833530, 120.287056],
         'Lesser Sunda Islands'	    : [-9.788183, 120.026111],
         'Western New Guinea'	    : [-3.657968, 137.944309],
-        'Sulawesi'	                : [-1.833530, 120.287056],
-        'Sumatra'	                : [-1.094433, 101.977441],
+        'Maluku Islands'	        : [-3.180422, 129.115683],
         }
       
     malaysia_dict = {
-        'Northern Region'    : [5.310380, 101.260808],                           
         'Central Region'     : [3.128231, 101.839143],
-        'Southern Region'    : [1.868505, 103.550540],
-        'East Coast'         : [3.808925, 103.029524],
-        'Sabah'              : [5.253195, 116.874400],
         'Sarawak'            : [2.458302, 113.446666],
+        'Sabah'              : [5.253195, 116.874400],
+        'Northern Region'    : [5.310380, 101.260808],                           
+        'East Coast'         : [3.808925, 103.029524],
+        'Southern Region'    : [1.868505, 103.550540],
         }  
     
     brunei_dict =   {'Brunei' : [4.410266, 114.609550]}
@@ -797,14 +797,14 @@ def geocode_divisions(metadata_df, country, division_column='agg_division'):
         }
 
     myanmar_dict = { 
-        'Mon'       : [15.985101, 98.097306], 
-        'Kayin'     : [17.805977, 96.727180], 
-        'Rakhine'   : [19.863024, 94.241567], 
-        'Kayah'     : [19.640226, 97.168350], 
-        'Shan'      : [21.453758, 99.180514], 
-        'Chin'      : [23.337089, 93.952457], 
-        'Kachin'    : [25.509609, 96.818941],
         'Nay Pyi Taw': [20.581489, 96.053544],
+        'Rakhine'   : [19.863024, 94.241567], 
+        'Kachin'    : [25.509609, 96.818941],
+        'Mon'       : [15.985101, 98.097306], 
+        'Shan'      : [21.453758, 99.180514], 
+        'Kayin'     : [17.805977, 96.727180], 
+        'Kayah'     : [19.640226, 97.168350], 
+        'Chin'      : [23.337089, 93.952457], 
         }
     
     singapore_dict = {'Singapore' : [1.352, 103.8]}
@@ -820,13 +820,13 @@ def geocode_divisions(metadata_df, country, division_column='agg_division'):
     timor_leste_dict = {'Timor-Leste'   : [-8.847402, 125.860190]}
     
     vietnam_dict = {
+        'Red River Delta'       : [20.795060, 105.940353],
         'Northwest'             : [21.471386, 103.589279],
         'Northeast'             : [22.286977, 105.918380],
-        'Red River Delta'       : [20.795060, 105.940353],
         'North Central Coast'   : [18.122794, 105.830489],
+        'Southeast'             : [11.391634, 107.302657],
         'South Central Coast'   : [15.663149, 108.027755],
         'Central Highlands'     : [13.280490, 108.005782],
-        'Southeast'             : [11.391634, 107.302657],
         'Mekong River Delta'    : [9.944953, 105.544845],
         }
     
@@ -1046,13 +1046,13 @@ def lineage_to_variant(metadata_df, lineage_column='pangolin_lineage'):
     
     # ALWAYS CHECK FOR UPDATES IN THE LINK ABOVE!
     variants_dict = {
-                'Alpha' : ['B.1.1.7', 'Q'], 
-                'Beta'  : ['B.1.351'], 
-                'Gamma' : ['P.1'], 
-                'Delta' : ['B.1.617.2', 'AY'], 
-                'Omicron': ['B.1.1.529'],
-                'Lambda': ['C.37'],
-                'Mu'    : ['B.1.621'],
+                'Alpha'  : ['B.1.1.7', 'Q'], 
+                'Beta'   : ['B.1.351'], 
+                'Gamma'  : ['P.1'], 
+                'Delta'  : ['B.1.617.2', 'AY'], 
+                'Omicron': ['B.1.1.529', 'BA'],
+                'Lambda' : ['C.37'],
+                'Mu'     : ['B.1.621'],
                 }
     
     df = metadata_df.copy()
@@ -1164,7 +1164,8 @@ def southeast_asia(input_directory, countries):
         temp_df = temp_df.sort_values(by='date_submitted', ascending=False)
         
         # Calculate submissions per month
-        total_months = datetime.today().month - temp_df.date_submitted.iloc[-1].month
+        total_years = datetime.today().year - temp_df.date_submitted.iloc[-1].year
+        total_months = total_years * 12 + datetime.today().month - temp_df.date_submitted.iloc[-1].month
         df.loc[df.Country==country, 'Submissions per Month'] = temp_df.date.count()/total_months
 
         # Calculate average difference between submission and collection dates
@@ -1241,8 +1242,8 @@ def variant_color(metadata_df, variant_column='variant'):
                     'Gamma' : 'lightgreen',
                     'Delta' : 'gold',
                     'Eta'   : 'orange',
-                    'Iota'  : 'brown',
-                    'Omicron': 'green',
+                    'Iota'  : 'green',
+                    'Omicron': 'pink',
                     'Lambda': 'lightblue',
                     'Mu'    : 'magenta',
                     'Others': 'whitesmoke',        
@@ -1274,7 +1275,8 @@ def variant_color(metadata_df, variant_column='variant'):
 
 
 
-
+if __name__ == "__main__":
+    main()
 
 
 
