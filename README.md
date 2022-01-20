@@ -19,7 +19,7 @@ Variant Surveillance is an additional component of this project to monitor the c
 > `python src/SarsCov2Variants.py`  
 
 This will generate csv files in `output/12_variants` and images in `output/11_regions`  
-Note that you will need to download the tsv files from GISAID since we are not authorized redistribute datasets from it.
+Note that you will need to download the tsv files from GISAID since we are not authorized to redistribute datasets from it.
 
 ![variants-in-philippines](./output/11_regions/philippines/0_NCR_N.png)
 
