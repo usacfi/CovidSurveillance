@@ -33,7 +33,7 @@ Epitope Surveillance aligns multiple COVID DNA sequences, trims the genes of int
 
 #### Example command line to run script:
 
-> `python3 main.py -i "references/Sequences/omicron_variant" -m "references/Sequences/omicron_variant"`
+> `python main.py -i "references/Sequences/omicron_variant" -m "references/Sequences/omicron_variant"`
 
 
 
