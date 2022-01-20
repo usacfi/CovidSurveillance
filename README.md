@@ -14,12 +14,12 @@ SARS-CoV-2 Genomic Surveillance and RNASeqAnalysis (technically DNA) has two com
 
 Variant Surveillance is an additional component of this project to monitor the circulating variants.
 
-#### Run the following inside Python:
+#### Run with:
 
-> `import src.SarsCov2Variants as scv`  
-> `scv.main()`
+> `python src/SarsCov2Variants.py`  
 
-This will generate csv files in `output/12_variants` and images in `output/11_regions`
+This will generate csv files in `output/12_variants` and images in `output/11_regions`  
+Note that you will need to download the tsv files from GISAID since we are not authorized redistribute datasets from it.
 
 ![variants-in-philippines](./output/11_regions/philippines/0_NCR_N.png)
 
