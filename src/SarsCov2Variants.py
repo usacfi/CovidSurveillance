@@ -45,8 +45,8 @@ def aggregate_divisions(metadata_df, country, division_column='division'):
     ======================================================================================
     
     Example usage:
-    >>> from SarsCov2Variants import aggregate_divisions
-    >>> new_df, divisions = aggregate_divisions(my_df, division_column='division')
+    >>> import SarsCov2Variants as scv
+    >>> new_df, divisions = scv.aggregate_divisions(my_df, division_column='division')
     >>> new_df['agg_division'].value_counts()
     
     ======================================================================================
@@ -88,13 +88,13 @@ def aggregate_divisions(metadata_df, country, division_column='division'):
         }
                         
                         
-    malaysia_dict = {
-        'Northern Region'   : ['penang', 'perak', 'perlis'],                           
+    malaysia_dict = {               
         'Central Region'    : ['kualalumpur', 'selangor', 'negerisembilan', 'wilayahpersekutuan', 'dengkil', 'bukitbintang', 'rembau', 'salak'],                       
+        'Sarawak'           : ['sarawak'],  
+        'Sabah'             : ['sabah'],     
+        'Northern Region'   : ['penang', 'perak', 'perlis'], 
+        'East Coast'        : ['pahang', 'kelantan'], 
         'Southern Region'   : ['melaka', 'johor'],                             
-        'East Coast'        : ['pahang', 'kelantan'],                 
-        'Sabah'             : ['sabah'],                        
-        'Sarawak'           : ['sarawak'],                             
         }                                   
                                                                          
     brunei_dict =   {'Brunei'    : ['brunei', 'sukang', 'nan']}
@@ -109,14 +109,16 @@ def aggregate_divisions(metadata_df, country, division_column='division'):
     
     # we only considered the 7 states in myanmar and capital                   
     myanmar_dict = { 
-        'Mon'       : ['mon', 'myeik'], 
-        'Kayin'     : ['kayin'], 
-        'Rakhine'   : ['rakhine',], 
-        'Kayah'     : ['kayah'], 
-        'Shan'      : ['shan', 'tamu'], 
-        'Chin'      : ['chin'], 
-        'Kachin'    : ['kachin', 'kalay'],
         'Nay Pyi Taw': ['naypyitaw', 'yangon', 'mandalay'],
+        'Rakhine'   : ['rakhine',], 
+        'Kachin'    : ['kachin', 'kalay'],
+        'Mon'       : ['mon', 'myeik'], 
+        'Shan'      : ['shan', 'tamu'], 
+        'Kayin'     : ['kayin'], 
+        'Kayah'     : ['kayah'], 
+        'Chin'      : ['chin'], 
+        
+        
         }                    
              
     singapore_dict = {'Singapore' : ['singapore', 'nan']}         
@@ -279,8 +281,7 @@ def area_charts_of_divisions(metadata_df, country, normalized=False, date_column
     countmax = groupby.groupby(by=[date_column,division_column])[id_column].sum().max()                                           
     
     divisions = metadata_df[division_column].unique().tolist()
-    divisions = [col for col in divisions if col not in ('Unknown','?','nan')]                    
-    random_number = np.random.randint(9999)                                         
+    divisions = [col for col in divisions if col not in ('Unknown','?','nan')]                                                            
     for i in range(len(divisions)):
         region = divisions[i]
         reg = groupby[groupby[division_column]==region] 
@@ -344,15 +345,21 @@ def area_charts_of_divisions(metadata_df, country, normalized=False, date_column
         plt.ylim(0, countmax)
         plt.xlim(metadata_df[date_column].min().date(), metadata_df[date_column].max().date())
         plt.xlabel(date_column)
-        update = f'{random_number}' 
+        year = str(datetime.today().year) 
+        month = str(datetime.today().month).zfill(2)
+        day = str(datetime.today().day).zfill(2)
+        update = year + month + day 
         if normalized:
             plt.ylabel('Count')
-            update = f'N{random_number}'   
+            update = f'N_{update}'   
         plt.legend(loc = 'upper left') 
         plt.title('{}'.format(region), 
                         fontsize = 17, 
                         fontstyle = 'oblique') 
+        plt.tight_layout()
         Path(f'{output_directory}/{country.lower().strip()}').mkdir(exist_ok=True, parents=True)
+        tableau_df = convert_to_tableau_df(reg_pivot, column_names=['count', 'variant'])
+        tableau_df.to_csv(f'{output_directory}/{country}/{i}_{region}_{update}.csv', index=True)
         plt.savefig(f'{output_directory}/{country}/{i}_{region}_{update}.png')
     
     
@@ -429,8 +436,8 @@ def bubble_map_of_country(metadata_df, date_column='date', division_column='agg_
     ======================================================================================
     
     Example usage:
-    >>> from SarsCov2Variants import bubble_map_of_country
-    >>> bubble_map_of_country(my_df)      
+    >>> import SarsCov2Variants as scv
+    >>> scv.bubble_map_of_country(my_df)      
     
     ======================================================================================                                  
     '''
@@ -604,6 +611,110 @@ def bubble_map_of_country(metadata_df, date_column='date', division_column='agg_
 
 
 
+
+def convert_to_tableau_df(df, column_names=['values', 'color']):
+    '''
+    ======================================================================================
+                    
+    Description: Merges all columns of the dataframe into one column then adds a second column
+                whose value is the corresponding original column name.
+    
+    Returns a dataframe ready to input in Tableau for heatmap or area chart.
+    
+    ======================================================================================
+    <INPUTS>
+    df: (dataframe) pandas dataframe with several columns to be merged
+    column_names: (list) list of the desired output column names (str) not the input column names
+    
+    ====================================================================================== 
+       
+    Example usage:
+    >>> import SarsCov2Variants as scv                
+    >>> scv.convert_to_tableau_df(my_df, column_names=['values', 'color'])   
+    
+    my_df:
+      |  A  |  B  |  C  | 
+    1 | 0.1 | 0.3 | 0.2 |
+    2 | 0.5 | 0.4 | 0.7 |
+    
+    out_df:
+      | values | color | 
+    1 |  0.1   |   A   | 
+    2 |  0.5   |   A   |
+    1 |  0.3   |   B   |
+    2 |  0.4   |   B   |
+    1 |  0.2   |   C   |
+    2 |  0.7   |   C   |
+    
+    ======================================================================================
+    '''
+    
+    cols = df.columns.tolist()
+    out_df = df[cols[0]].copy()
+
+    l = [cols[0]]*len(df)
+    for col in cols[1:]:
+        out_df = pd.concat([out_df, df[col]])
+        l.extend([col]*len(df))
+        
+    out_df = out_df.to_frame()
+    out_df[column_names[1]] = l
+    out_df.columns = column_names
+    
+    return out_df   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def combine_metadata(directory, meta_cols=['strain','gisaid_epi_isl','date','region','country',
                     'division','age','sex','pangolin_lineage','GISAID_clade','originating_lab',
                     'submitting_lab','date_submitted'], date_column='date', with_phrase='metadata',
@@ -625,8 +736,8 @@ def combine_metadata(directory, meta_cols=['strain','gisaid_epi_isl','date','reg
     ====================================================================================== 
        
     Example usage:
-    >>> from SarsCov2Variants import combine_metadata                
-    >>> combine_metadata('/User/Downloads', meta_cols=['virus','division'], date_column='date')   
+    >>> import SarsCov2Variants as scv            
+    >>> scv.combine_metadata('/User/Downloads', meta_cols=['virus','division'], date_column='date')   
     
     ====================================================================================== 
     '''
@@ -740,8 +851,8 @@ def geocode_divisions(metadata_df, country, division_column='agg_division'):
     ======================================================================================
     
     Example usage:
-    >>> from SarsCov2Variants import geocode_divisions
-    >>> new_df = geocode_divisions(my_df, division_column='agg_division')
+    >>> import SarsCov2Variants as scv
+    >>> new_df = scv.geocode_divisions(my_df, division_column='agg_division')
     
     ======================================================================================
     '''
@@ -1038,8 +1149,8 @@ def lineage_to_variant(metadata_df, lineage_column='pangolin_lineage'):
     ======================================================================================
         
     Example usage:
-    >>> from SarsCov2Variants import lineage_to_variant
-    >>> lineage_to_variant(my_df, lineage_column='pangolin_lineage')
+    >>> import SarsCov2Variants as scv
+    >>> scv.lineage_to_variant(my_df, lineage_column='pangolin_lineage')
     
     ======================================================================================
     '''
@@ -1230,8 +1341,8 @@ def variant_color(metadata_df, variant_column='variant'):
     ======================================================================================
         
     Example usage:
-    >>> from SarsCov2Variants import variant_color
-    >>> variant_color(my_df, variant_column='variant')
+    >>> import SarsCov2Variants as scv
+    >>> scv.variant_color(my_df, variant_column='variant')
     
     ====================================================================================== 
     '''
@@ -1271,9 +1382,9 @@ def variant_color(metadata_df, variant_column='variant'):
 
 
 
-
-
-
+# ================#
+#       MAIN      #
+# ================#
 
 if __name__ == "__main__":
     main()
