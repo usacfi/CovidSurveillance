@@ -286,52 +286,57 @@ def area_charts_of_divisions(metadata_df, country, normalized=False, date_column
         region = divisions[i]
         reg = groupby[groupby[division_column]==region] 
     
-        # If there's no data  
-        if len(reg) == 0:  
-            reg_pivot = pd.DataFrame({date_column:['2020-10','2021-01','2021-03'],'No data':[0,0,0]})
-            reg_pivot[date_column] = reg_pivot[date_column].astype('datetime64')
-            reg_pivot[date_column] = reg_pivot[date_column].dt.date
+        # If there's no sufficient data  
+        if len(reg) < 4:  
+            df = pd.DataFrame({date_column:['2020-10','2021-01','2021-03'],'Insufficient data':[0,0,0]})
+            #df[date_column] = df[date_column].astype('datetime64')
+            #df[date_column] = df[date_column].dt.date
             COLORS = 'black'
    
-    
-        # If there's data
+        # If there's sufficient data
         else:
-            reg_pivot = reg.pivot(index=date_column, columns=variant_column)[id_column]
-            reg_pivot = reg_pivot.replace(np.nan, 0)
-            total_df = reg_pivot.sum(axis=1)
-      
+            df = reg.pivot(index=date_column, columns=variant_column)[id_column]
+            df = df.replace(np.nan, 0)
+            
+            # Put the 'Others' column at the end, assumes 'Others' is the last alphabetically
+            cols = df.columns.tolist()
+            df = df[cols]
+            
             # Normalize the occurences
             if normalized:
                 countmax = 1
-                for variant in reg_pivot.columns:
-                    reg_pivot[variant] = reg_pivot[variant]/total_df
-               
-            # Put the 'Others' column at the end
-            cols = reg_pivot.columns.tolist()
-            reg_pivot = reg_pivot[cols]
+                df = (df.T/df.sum(axis=1)).T
       
-            # Smoothen curves if there are more than 3 data points.
-            if len(reg) > 3:
-                df = pd.DataFrame()
-                new_index = np.arange((reg_pivot.index[-1] - reg_pivot.index[0]).days + 1)
-                date_index = pd.date_range( start = reg_pivot.index[0], 
-                                            end = reg_pivot.index[-1],
-                                            freq='D').date
+            new_index = np.arange((df.index[-1] - df.index[0]).days + 1)
+            date_index = pd.date_range( start = df.index[0], 
+                                        end = df.index[-1],
+                                        freq='D').date
 
-                for variant in reg_pivot.columns:
-                    func = interp1d((reg_pivot.index - reg_pivot.index[0]).days, reg_pivot[variant], kind='cubic')
-                    df[variant] = func(new_index)
-    
-                df[df < 0] = 0     
-                df.index = date_index
-                reg_pivot = df
+            if normalized:                            
+                # Smoothen curves                            
+                temp_df = pd.DataFrame()
+                for variant in df.columns:
+                    func = interp1d((df.index - df.index[0]).days, 
+                                    df[variant], 
+                                    kind='cubic')
+                    temp_df[variant] = func(new_index)
+
+                temp_df[temp_df < 0] = 0     
+                temp_df.index = date_index
+                df = temp_df
+                df = (df.T/df.sum(axis=1)).T  # Ensure the sum equals 1
                 
-            variant_color_df = pd.DataFrame({variant_column:reg_pivot.columns.tolist()})
+            else:
+                temp_df = pd.DataFrame(index=date_index)
+                df = df.combine(temp_df, np.maximum, fill_value=0)
+                    
+                
+            variant_color_df = pd.DataFrame({variant_column:df.columns.tolist()})
             variant_color_df = variant_color(variant_color_df)
                 
             COLORS = variant_color_df.color.tolist()
 
-        reg_pivot.plot( kind = 'area', 
+        df.plot( kind = 'area', 
                         rot = 0,
                         color = COLORS)
 
@@ -349,18 +354,21 @@ def area_charts_of_divisions(metadata_df, country, normalized=False, date_column
         month = str(datetime.today().month).zfill(2)
         day = str(datetime.today().day).zfill(2)
         update = year + month + day 
+        n = ''
         if normalized:
             plt.ylabel('Count')
-            update = f'N_{update}'   
+            update = f'N_{update}' 
+            n = '_N'  
         plt.legend(loc = 'upper left') 
         plt.title('{}'.format(region), 
                         fontsize = 17, 
                         fontstyle = 'oblique') 
+                        
         plt.tight_layout()
         Path(f'{output_directory}/{country.lower().strip()}').mkdir(exist_ok=True, parents=True)
-        tableau_df = convert_to_tableau_df(reg_pivot, column_names=['count', 'variant'])
-        tableau_df.to_csv(f'{output_directory}/{country}/{i}_{region}_{update}.csv', index=True)
-        plt.savefig(f'{output_directory}/{country}/{i}_{region}_{update}.png')
+        tableau_df = convert_to_tableau_df(df, column_names=['count', 'variant'])
+        tableau_df.to_csv(f'{output_directory}/{country}/{country}_{region}{n}.csv', index=True)
+        #plt.savefig(f'{output_directory}/{country}/{i}_{region}_{update}.png')
     
     
     
@@ -833,6 +841,131 @@ def combine_metadata(directory, meta_cols=['strain','gisaid_epi_isl','date','reg
 
 
 
+
+
+
+
+
+
+
+
+def combine_output_files(path, use_filename=False, include=[], exclude=[], output_index=False, first_col=None):
+    '''
+    ======================================================================================
+    
+    Description: Combines output csv files in a directory
+    
+    Returns: Combined dataframe
+    
+    ======================================================================================
+    
+    <INPUTS>
+    path: (directory)
+    use_filename: (bool) whether to create another column in the dataframe with the filename 
+                    as the value
+    include: (list) filters which csv files to combine using a list of keywords
+    exclude: (list) filters which csv files to ignore using a list of keywords
+    output_index: (bool) whether to save the output csv with index or without index
+    first_col: (str) column name for which to rename the first column
+    
+    ======================================================================================
+    
+    Example usage:
+    >>> import SarsCov2Variants as scv
+    >>> scv.combine_output_files('output/12_variants', use_filename=False, include=['aggregated'])
+    
+    ======================================================================================
+    '''
+    
+    width = os.get_terminal_size().columns
+    print('\n\n')
+    print('#===================================#'.center(width))
+    print('Combining output files'.center(width))
+    print('#===================================#'.center(width))
+    print('\n\n')
+    
+    combined_df = pd.DataFrame()
+    l = []
+    
+    for dirname, _, filenames in os.walk(path):
+        for filename in filenames:
+            if len(include)>0 and len([key for key in include if key in filename]) == 0:
+                print('skipped', filename)
+                continue
+            elif len(exclude)>0 and len([key for key in exclude if key in filename]) > 0:
+                print('skipped', filename)
+                continue
+            
+            print(os.path.join(dirname, filename))
+            temp_df = pd.read_csv(os.path.join(dirname, filename))    
+            combined_df = pd.concat([combined_df, temp_df])
+        
+            if use_filename:
+                l.extend([filename] * len(temp_df))
+          
+    if first_col != None:
+        combined_df = combined_df.rename(columns={combined_df.columns[0]:first_col})
+        
+    if use_filename:
+        combined_df['filename'] = l
+
+    combined_df.to_csv(f'{path}.csv', index=output_index)
+    return combined_df
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def geocode_divisions(metadata_df, country, division_column='agg_division'):
     '''
     ======================================================================================
@@ -1218,6 +1351,15 @@ def main(countries=['Brunei', 'Cambodia', 'Indonesia', 'Laos', 'Malaysia', 'Myan
 
         print('Southeastasia')
         southeast_asia('output/12_variants', countries)
+        combine_output_files('output/11_regions', 
+                            use_filename=True, 
+                            exclude=['nan', '2021', 'DS'], 
+                            output_index=False, 
+                            first_col='Collection Date')
+        combine_output_files('output/12_variants', 
+                            use_filename=True, 
+                            include=['aggregate'], 
+                            output_index=False)
             
 
 
