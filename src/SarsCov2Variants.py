@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-from datetime import datetime
+from datetime import datetime, date, timedelta
 import shutil
 from pathlib import Path
 
@@ -337,8 +337,8 @@ def area_charts_of_divisions(metadata_df, country, normalized=False, date_column
             COLORS = variant_color_df.color.tolist()
 
         df.plot( kind = 'area', 
-                        rot = 0,
-                        color = COLORS)
+                 rot = 0,
+                 color = COLORS)
 
                        
         ax = plt.gca()
@@ -591,6 +591,65 @@ def bubble_map_of_country(metadata_df, date_column='date', division_column='agg_
 
 
 
+
+
+  
+    
+def calc_metrics(df_, country, country_column='country', submission_date_column='date_submitted', 
+    collection_date_column='date', period=30):
+    
+    cols = [submission_date_column, collection_date_column, country_column]
+    df = df_[cols].copy()
+    df = df[(~df[country_column].isnull()) & (~df[submission_date_column].isnull()) & (~df[collection_date_column].isnull())]
+    df = df[df[country_column]==country]
+
+    # Convert index to datetime dtype
+    df[submission_date_column] = pd.to_datetime(df[submission_date_column])
+    df[collection_date_column] = pd.to_datetime(df[collection_date_column])
+
+    # Aggregate per submission date
+    agg_df = df.groupby(submission_date_column)[country_column].count()
+    
+    start_date = agg_df.index[0]
+    current_date = datetime.now() #date(2022, 4, 17)
+    delta = current_date - start_date
+        
+    date_range = []    
+    submission_sum = []    
+    submission_freq = []
+    submission_cst = []
+    for i in range(0, delta.days+1):
+        d = start_date + timedelta(days=i) 
+        date_range.append(d)
+        
+        # Filter the dates    
+        temp_df = agg_df[(agg_df.index > d - timedelta(days=period)) & (agg_df.index <= d)]
+        
+        # Calculate the running total (in the past 30 days) of submissions
+        submission_sum.append(temp_df.sum())
+        
+        # Calculate the moving average of submission frequency
+        l1 = temp_df.index[:-1].to_frame().reset_index(drop=True)
+        l2 = temp_df.index[1:].to_frame().reset_index(drop=True)
+        if len(temp_df) < 2:
+            submission_freq.append(np.nan)
+        else:
+            submission_freq.append(np.abs(np.mean(l1-l2).astype('timedelta64[D]').astype(int))[0])
+        
+        # Calculate average difference between submission and collection dates
+        temp2_df = df[(df[submission_date_column] > d - timedelta(days=period)) & (df[submission_date_column] <= d)]
+        diff = (temp2_df[submission_date_column] - temp2_df[collection_date_column]).astype('timedelta64[D]')
+        submission_cst.append(np.mean(diff))      
+    
+    # Create output dataframe
+    out_df = pd.DataFrame({'date':date_range,
+                           'sum':submission_sum,
+                           'freq':submission_freq,
+                           'cst':submission_cst,
+                         })
+                         
+    out_df['country'] = country
+    return out_df
 
 
 
@@ -1405,32 +1464,18 @@ def southeast_asia(input_directory, countries):
     area_charts_of_divisions(meta_df, country='southeastasia')
     area_charts_of_divisions(meta_df, country='southeastasia', normalized=True)
     
-    # Create GISAID submission summary table
-    df = pd.DataFrame()
-    df['Country'] = countries
-    
+    # Create time-series of GISAID submission metrics
     for country in countries:
         print(country)
-        temp_df = meta_df[meta_df.agg_division==country][['date','date_submitted']].dropna().copy()
-        temp_df.date = pd.to_datetime(temp_df.date)
-        temp_df.date_submitted = pd.to_datetime(temp_df.date_submitted)
-        temp_df = temp_df.sort_values(by='date_submitted', ascending=False)
-        
-        # Calculate submissions per month
-        total_years = datetime.today().year - temp_df.date_submitted.iloc[-1].year
-        total_months = total_years * 12 + datetime.today().month - temp_df.date_submitted.iloc[-1].month
-        df.loc[df.Country==country, 'Submissions per Month'] = temp_df.date.count()/total_months
-
-        # Calculate average difference between submission and collection dates
-        diff = (temp_df.date_submitted - temp_df.date).astype('timedelta64[D]')
-        df.loc[df.Country==country, 'Submission-Collection Date Difference'] = np.mean(diff)
     
-        # Calculate the average frequency of submissions
-        d1 = temp_df.date_submitted.unique()[:-1]
-        d2 = temp_df.date_submitted.unique()[1:]
-        df.loc[df.Country==country, 'Submission Frequency'] = np.mean(d1-d2).astype('timedelta64[D]').astype(int)
+        # Calculate metrics
+        temp_df = calc_metrics(meta_df, country=country)
+        try:
+            df = pd.concat([df, temp_df])
+        except:
+            df = temp_df.copy()
     
-    df.to_csv('output/gisaid_submissions.csv', index=False)
+    df.to_csv('output/submission_metrics.csv', index=False)
     return df
 
 
